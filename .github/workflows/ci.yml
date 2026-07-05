@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  opencode-plugin:
+    name: OpenCode plugin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install JavaScript dependencies
+        run: npm install
+
+      - name: Test OpenCode plugin
+        run: npm test
+
+      - name: Build npm package
+        run: |
+          mkdir -p artifacts/npm
+          npm pack --workspace opencode-logitech-haptics --pack-destination artifacts/npm
+
+      - name: Upload npm package
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-plugin-npm-package
+          path: artifacts/npm/*.tgz
+          if-no-files-found: error
+
+  logitech-plugin:
+    name: Logitech plugin
+    runs-on: ubuntu-latest
+    env:
+      CONFIGURATION: Release
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_NOLOGO: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build PluginApi test stub
+        run: dotnet build tests/PluginApiStubs/PluginApiStubs.csproj -c "$CONFIGURATION"
+
+      - name: Build Logitech plugin
+        run: >-
+          dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln
+          -c "$CONFIGURATION"
+          /p:SkipLogiDeploy=true
+          /p:PluginApiDir="$GITHUB_WORKSPACE/tests/PluginApiStubs/bin/$CONFIGURATION/net8.0/"
+
+      - name: Upload Logitech plugin build
+        uses: actions/upload-artifact@v4
+        with:
+          name: logitech-plugin-build
+          path: logitech-plugin/OpenCodeHapticsPlugin/bin/Release/**
+          if-no-files-found: error
