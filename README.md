@@ -104,6 +104,8 @@ The release workflow attaches:
 - the OpenCode npm package (`*.tgz`)
 - the Logitech plugin package (`OpenCodeHaptics_<version>.lplug4`)
 
+Branch/PR CI artifacts include the ref type, sanitized ref, and short SHA, for example `OpenCodeHaptics_branch_main_1234567.lplug4`. Tagged releases keep version-only names, for example `OpenCodeHaptics_0_1_0.lplug4`.
+
 Before tagging, follow [`docs/release-checklist.md`](docs/release-checklist.md).
 
 ## Troubleshooting
