@@ -72,6 +72,8 @@ DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeHaptics_
 
 ## Manual bridge test
 
+For install steps, see [`docs/install.md`](docs/install.md).
+
 After installing/loading the Logitech plugin, send a test event:
 
 ```bash
