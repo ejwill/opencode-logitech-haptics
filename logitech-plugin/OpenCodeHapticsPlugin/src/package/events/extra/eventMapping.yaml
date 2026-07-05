@@ -1,0 +1,19 @@
+haptics:
+    opencodeComplete:
+        DEFAULT: completed
+        MX Master 4: completed
+    opencodePermission:
+        DEFAULT: knock
+        MX Master 4: knock
+    opencodeError:
+        DEFAULT: angry_alert
+        MX Master 4: angry_alert
+    opencodeQuestion:
+        DEFAULT: ringing
+        MX Master 4: ringing
+    opencodePlanExit:
+        DEFAULT: happy_alert
+        MX Master 4: happy_alert
+    opencodeTest:
+        DEFAULT: sharp_state_change
+        MX Master 4: sharp_state_change

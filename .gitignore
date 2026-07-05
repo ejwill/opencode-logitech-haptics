@@ -18,3 +18,9 @@ obj/
 .DS_Store
 .idea/
 .vscode/
+
+# OpenCode plugin config (user overrides)
+opencode-plugin/config.json
+
+# Local test scratch
+.tmp/

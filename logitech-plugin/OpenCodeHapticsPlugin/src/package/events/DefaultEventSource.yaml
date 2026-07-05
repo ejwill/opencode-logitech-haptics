@@ -1,0 +1,22 @@
+displayName: OpenCode Haptics
+description: Haptic events emitted from OpenCode notifications
+
+events:
+    - name: opencodeComplete
+      displayName: OpenCode Complete
+      description: OpenCode session completed
+    - name: opencodePermission
+      displayName: OpenCode Permission
+      description: OpenCode is asking for permission
+    - name: opencodeError
+      displayName: OpenCode Error
+      description: OpenCode reported an error
+    - name: opencodeQuestion
+      displayName: OpenCode Question
+      description: OpenCode has a question
+    - name: opencodePlanExit
+      displayName: OpenCode Plan Ready
+      description: OpenCode plan is ready for review
+    - name: opencodeTest
+      displayName: OpenCode Test
+      description: Manual test event
