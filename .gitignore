@@ -1,0 +1,20 @@
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+
+# .NET
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# Logitech packages
+*.lplug4
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
