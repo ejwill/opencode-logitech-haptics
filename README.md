@@ -82,6 +82,10 @@ curl -i -X POST http://127.0.0.1:17844/haptic \
 
 Expected response: `HTTP/1.1 202 Accepted`.
 
+For the full real-device checklist, see [`docs/hardware-validation.md`](docs/hardware-validation.md).
+
+For OpenCode live-event testing, use [`opencode-plugin/examples/live-test-config.json`](opencode-plugin/examples/live-test-config.json).
+
 ## Releases
 
 CI creates release artifacts on every run and creates a GitHub Release for tags matching `v*`.
@@ -97,6 +101,22 @@ The release workflow attaches:
 
 - the OpenCode npm package (`*.tgz`)
 - the Logitech plugin package (`OpenCodeHaptics_<version>.lplug4`)
+
+Before tagging, follow [`docs/release-checklist.md`](docs/release-checklist.md).
+
+## Troubleshooting
+
+### `curl` cannot connect to `127.0.0.1:17844`
+
+The Logitech plugin is not listening yet. Confirm Logi Options+ / Logi Plugin Service is running and the plugin loaded successfully.
+
+### `202 Accepted` but no haptic
+
+The HTTP bridge accepted the event, but the Logitech haptic mapping or device setup is not firing. Check that MX Master 4 / MX 4 haptics are enabled and that the packaged YAML mappings installed correctly.
+
+### OpenCode does not trigger haptics, but curl works
+
+Check `OPENCODE_LOGITECH_HAPTICS_CONFIG`, verify OpenCode loaded the plugin, and temporarily set `suppressDuplicatesMs` to `0` in the live-test config.
 
 ## Build phases
 

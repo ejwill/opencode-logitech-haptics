@@ -25,3 +25,4 @@ opencode-plugin/config.json
 
 # Local test scratch
 .tmp/
+.hermes/

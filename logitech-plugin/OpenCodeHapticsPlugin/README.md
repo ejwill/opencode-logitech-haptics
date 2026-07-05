@@ -30,6 +30,8 @@ curl -i -X POST http://127.0.0.1:17844/haptic \
 
 Expected: `HTTP/1.1 202 Accepted`.
 
+For the full real-device checklist, see [`../../docs/hardware-validation.md`](../../docs/hardware-validation.md).
+
 CI also runs a smoke test directly against `OpenCodeHapticsServer`:
 
 ```bash

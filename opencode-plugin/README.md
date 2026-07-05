@@ -38,9 +38,41 @@ http://127.0.0.1:17844/haptic
 ```
 
 Config can be loaded from:
+
 - `opencode-logitech-haptics.jsonc` (default)
 - `opencode-logitech-haptics.json` (default)
 - `OPENCODE_LOGITECH_HAPTICS_CONFIG` env var pointing to a JSON file
 - `LOGITECH_HAPTICS_URL` env var overrides the endpoint
 
 The OpenCode layer controls **when to notify**. It should not contain Logitech waveform details.
+
+## Live hardware test
+
+After the Logitech plugin is installed and listening on `127.0.0.1:17844`, run OpenCode with the committed live-test config:
+
+```bash
+OPENCODE_LOGITECH_HAPTICS_CONFIG="$PWD/opencode-plugin/examples/live-test-config.json" opencode
+```
+
+Expected request path:
+
+```text
+OpenCode event → this plugin → POST http://127.0.0.1:17844/haptic → Logitech plugin → haptic event
+```
+
+Useful events to trigger manually:
+
+| OpenCode flow | Bridge event |
+| --- | --- |
+| Session becomes idle/completes | `complete` |
+| Permission prompt appears | `permission` |
+| Session errors | `error` |
+| Tool asks a question | `question` |
+| Plan exits | `plan_exit` |
+
+If curl tests work but OpenCode does not trigger haptics, check:
+
+- `OPENCODE_LOGITECH_HAPTICS_CONFIG` points to the committed JSON file.
+- The plugin is loaded by OpenCode.
+- The event is enabled in the config.
+- `suppressDuplicatesMs` is not filtering repeat events.
