@@ -5,8 +5,10 @@
   "description": "OpenCode plugin that forwards notification events to a local Logitech haptics bridge",
   "main": "src/index.js",
   "exports": {".": "./src/index.js"},
+  "dependencies": {"@opencode-logitech-haptics/core": "file:../packages/haptics-core"},
+  "bundledDependencies": ["@opencode-logitech-haptics/core"],
   "files": ["src", "examples", "README.md", "config.example.json"],
   "keywords": ["opencode", "plugin", "logitech", "haptics", "mx-master-4", "mx-4"],
-  "scripts": {"test": "node --test"},
+  "scripts": {"pretest": "node scripts/bundle-core.mjs", "test": "node --test", "prepack": "node scripts/bundle-core.mjs"},
   "engines": {"node": ">=20"}
 }

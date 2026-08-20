@@ -10,10 +10,13 @@ namespace Loupedeck.OpenCodeHapticsPlugin
 
     internal sealed class OpenCodeHapticsServer : IDisposable
     {
+        private const Int32 MaxRequestBodyBytes = 16 * 1024;
         private readonly HttpListener _listener = new();
         private readonly Action<String> _raiseHapticEvent;
+        private readonly Object _lifecycleLock = new();
         private CancellationTokenSource _cancellation;
         private Task _serveTask;
+        private Boolean _disposed;
 
         public OpenCodeHapticsServer(Int32 port, Action<String> raiseHapticEvent)
         {
@@ -24,29 +27,50 @@ namespace Loupedeck.OpenCodeHapticsPlugin
 
         public Int32 Port { get; }
 
-        public void Start()
+        public Boolean Start()
         {
-            if (this._serveTask != null) return;
-            this._cancellation = new CancellationTokenSource();
-            this._listener.Start();
-            this._serveTask = Task.Run(() => this.ServeAsync(this._cancellation.Token));
-            PluginLog.Info($"OpenCode haptics listener started on http://127.0.0.1:{this.Port}/haptic");
+            lock (this._lifecycleLock)
+            {
+                if (this._disposed) throw new ObjectDisposedException(nameof(OpenCodeHapticsServer));
+                if (this._serveTask != null) return true;
+                var cancellation = new CancellationTokenSource();
+                try
+                {
+                    this._listener.Start();
+                    this._cancellation = cancellation;
+                    this._serveTask = Task.Run(() => this.ServeAsync(cancellation.Token));
+                    PluginLog.Info($"OpenCode haptics listener started on http://127.0.0.1:{this.Port}/haptic");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    cancellation.Dispose();
+                    PluginLog.Error($"OpenCode haptics listener could not start on port {this.Port}: {ex}");
+                    return false;
+                }
+            }
         }
 
         public void Stop()
         {
-            try
+            Task serveTask;
+            CancellationTokenSource cancellation;
+            lock (this._lifecycleLock)
             {
-                this._cancellation?.Cancel();
-                if (this._listener.IsListening) this._listener.Stop();
-            }
-            catch (Exception ex) { PluginLog.Error($"Error while stopping OpenCode haptics listener: {ex}"); }
-            finally
-            {
-                this._cancellation?.Dispose();
-                this._cancellation = null;
+                serveTask = this._serveTask;
+                cancellation = this._cancellation;
                 this._serveTask = null;
+                this._cancellation = null;
+                try
+                {
+                    cancellation?.Cancel();
+                    if (this._listener.IsListening) this._listener.Stop();
+                }
+                catch (Exception ex) { PluginLog.Error($"Error while stopping OpenCode haptics listener: {ex}"); }
             }
+            try { serveTask?.GetAwaiter().GetResult(); }
+            catch (Exception ex) { PluginLog.Error($"OpenCode haptics listener did not stop cleanly: {ex}"); }
+            finally { cancellation?.Dispose(); }
         }
 
         private async Task ServeAsync(CancellationToken cancellationToken)
@@ -56,33 +80,52 @@ namespace Loupedeck.OpenCodeHapticsPlugin
                 try
                 {
                     var context = await this._listener.GetContextAsync().ConfigureAwait(false);
-                    _ = Task.Run(() => this.HandleAsync(context), cancellationToken);
+                    _ = this.HandleAsync(context);
                 }
                 catch (HttpListenerException) when (cancellationToken.IsCancellationRequested) { return; }
                 catch (ObjectDisposedException) { return; }
-                catch (Exception ex) { PluginLog.Error($"OpenCode haptics listener error: {ex}"); }
+                catch (Exception ex)
+                {
+                    if (!cancellationToken.IsCancellationRequested) PluginLog.Error($"OpenCode haptics listener error: {ex}");
+                }
             }
         }
 
         private async Task HandleAsync(HttpListenerContext context)
         {
-            if (!String.Equals(context.Request.HttpMethod, "POST", StringComparison.OrdinalIgnoreCase) || !String.Equals(context.Request.Url?.AbsolutePath, "/haptic", StringComparison.OrdinalIgnoreCase))
-            {
-                await this.RespondAsync(context, 404, "not found").ConfigureAwait(false);
-                return;
-            }
             try
             {
-                using var reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding ?? Encoding.UTF8);
-                var body = await reader.ReadToEndAsync().ConfigureAwait(false);
+                if (!String.Equals(context.Request.Url?.AbsolutePath, "/haptic", StringComparison.OrdinalIgnoreCase))
+                {
+                    await this.RespondAsync(context, 404, "not found").ConfigureAwait(false);
+                    return;
+                }
+                if (!String.Equals(context.Request.HttpMethod, "POST", StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Response.Headers["Allow"] = "POST";
+                    await this.RespondAsync(context, 405, "method not allowed").ConfigureAwait(false);
+                    return;
+                }
+                if (context.Request.ContentLength64 > MaxRequestBodyBytes)
+                {
+                    await this.RespondAsync(context, 413, "request too large").ConfigureAwait(false);
+                    return;
+                }
+
+                var body = await ReadBodyAsync(context.Request.InputStream).ConfigureAwait(false);
                 using var document = JsonDocument.Parse(body);
-                if (!document.RootElement.TryGetProperty("event", out var eventProperty))
+                if (document.RootElement.ValueKind != JsonValueKind.Object || !document.RootElement.TryGetProperty("event", out var eventProperty))
                 {
                     await this.RespondAsync(context, 400, "missing event").ConfigureAwait(false);
                     return;
                 }
+                if (eventProperty.ValueKind != JsonValueKind.String || String.IsNullOrWhiteSpace(eventProperty.GetString()))
+                {
+                    await this.RespondAsync(context, 400, "invalid event").ConfigureAwait(false);
+                    return;
+                }
                 var openCodeEvent = eventProperty.GetString();
-                if (String.IsNullOrWhiteSpace(openCodeEvent) || !OpenCodeHapticEvents.FromOpenCodeEvent.TryGetValue(openCodeEvent, out var hapticEvent))
+                if (!OpenCodeHapticEvents.FromOpenCodeEvent.TryGetValue(openCodeEvent, out var hapticEvent))
                 {
                     await this.RespondAsync(context, 204, String.Empty).ConfigureAwait(false);
                     return;
@@ -90,12 +133,32 @@ namespace Loupedeck.OpenCodeHapticsPlugin
                 this._raiseHapticEvent(hapticEvent);
                 await this.RespondAsync(context, 202, "accepted").ConfigureAwait(false);
             }
-            catch (JsonException) { await this.RespondAsync(context, 400, "invalid json").ConfigureAwait(false); }
+            catch (JsonException) { await this.TryRespondAsync(context, 400, "invalid json").ConfigureAwait(false); }
+            catch (InvalidDataException) { await this.TryRespondAsync(context, 413, "request too large").ConfigureAwait(false); }
             catch (Exception ex)
             {
                 PluginLog.Error($"OpenCode haptics request failed: {ex}");
-                await this.RespondAsync(context, 500, "internal error").ConfigureAwait(false);
+                await this.TryRespondAsync(context, 500, "internal error").ConfigureAwait(false);
             }
+        }
+
+        private static async Task<String> ReadBodyAsync(Stream input)
+        {
+            using var output = new MemoryStream();
+            var buffer = new Byte[4096];
+            Int32 read;
+            while ((read = await input.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
+            {
+                if (output.Length + read > MaxRequestBodyBytes) throw new InvalidDataException("Request body exceeds limit.");
+                await output.WriteAsync(buffer, 0, read).ConfigureAwait(false);
+            }
+            return Encoding.UTF8.GetString(output.ToArray());
+        }
+
+        private async Task TryRespondAsync(HttpListenerContext context, Int32 statusCode, String body)
+        {
+            try { await this.RespondAsync(context, statusCode, body).ConfigureAwait(false); }
+            catch (Exception responseError) { PluginLog.Error($"OpenCode haptics response failed: {responseError}"); }
         }
 
         private async Task RespondAsync(HttpListenerContext context, Int32 statusCode, String body)
@@ -108,6 +171,12 @@ namespace Loupedeck.OpenCodeHapticsPlugin
             context.Response.Close();
         }
 
-        public void Dispose() => this.Stop();
+        public void Dispose()
+        {
+            if (this._disposed) return;
+            this.Stop();
+            this._listener.Close();
+            this._disposed = true;
+        }
     }
 }

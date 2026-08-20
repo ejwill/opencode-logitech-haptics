@@ -57,7 +57,7 @@ accepted
 
 Expected Logitech event: `opencodeTest`.
 
-## 2. Install the OpenCode plugin package
+## 2. Install the legacy OpenCode plugin package
 
 Install the local package tarball with npm:
 
@@ -85,13 +85,35 @@ Default endpoint:
 http://127.0.0.1:17844/haptic
 ```
 
-Override endpoint if needed:
+Override the loopback endpoint if needed:
 
 ```bash
-LOGITECH_HAPTICS_URL="http://127.0.0.1:17844/haptic" opencode
+LOGITECH_HAPTICS_URL="http://localhost:17844/haptic" opencode
 ```
 
-## 4. Validate end-to-end
+## 4. Configure the OpenCode v2 package
+
+OpenCode v2 is a separate beta runtime and uses the independently packaged `opencode-logitech-haptics-v2` adapter. Install the package from a registry when it is published, or reference the local package directory while developing:
+
+```jsonc
+// opencode.jsonc
+{
+  "plugins": [{
+    "package": "./opencode-plugin-v2",
+    "options": {
+      "endpoint": "http://127.0.0.1:17844/haptic",
+      // Add only event names captured from your pinned OpenCode v2 runtime.
+      "eventTypes": {
+        "your.observed.event": "complete"
+      }
+    }
+  }]
+}
+```
+
+The adapter also forwards the documented `execute.before` tool hooks when their public tool names are `question` or `plan_exit`. It keeps completion, errors, and permissions opt-in through `eventTypes` because OpenCode v2 event names are beta and not part of the legacy contract.
+
+## 5. Validate end-to-end
 
 1. Start / reload Logi Plugin Service.
 2. Confirm `curl -i http://127.0.0.1:17844/haptic` returns `404 not found`.
@@ -110,5 +132,7 @@ For the full hardware checklist and troubleshooting, see [`hardware-validation.m
 ```bash
 npm uninstall opencode-logitech-haptics
 ```
+
+- Remove the v2 package from its OpenCode v2 configuration or use `opencode2 plugin remove opencode-logitech-haptics-v2` after registry installation.
 
 - Restart OpenCode and Logi Plugin Service.
