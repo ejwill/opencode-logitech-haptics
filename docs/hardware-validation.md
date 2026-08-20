@@ -51,8 +51,8 @@ curl -i http://127.0.0.1:17844/haptic
 Expected response:
 
 ```text
-HTTP/1.1 404 Not Found
-not found
+HTTP/1.1 405 Method Not Allowed
+method not allowed
 ```
 
 A connection failure means the Logitech plugin is not listening yet.

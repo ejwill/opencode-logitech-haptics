@@ -1,5 +1,7 @@
 # Install Guide
 
+For the complete source-to-device runbook, use [INSTALL_AND_TEST.md](INSTALL_AND_TEST.md). It covers building both npm packages, clean-install artifact testing, Logitech package verification, legacy and v2 configuration, and the distinction between bridge and physical-device proof.
+
 This guide is for installing the packaged OpenCode + Logitech haptics bridge.
 
 ## Install artifacts
@@ -36,8 +38,8 @@ curl -i http://127.0.0.1:17844/haptic
 Expected response:
 
 ```text
-HTTP/1.1 404 Not Found
-not found
+HTTP/1.1 405 Method Not Allowed
+method not allowed
 ```
 
 Then trigger a manual haptic:
@@ -116,7 +118,7 @@ The adapter also forwards the documented `execute.before` tool hooks when their 
 ## 5. Validate end-to-end
 
 1. Start / reload Logi Plugin Service.
-2. Confirm `curl -i http://127.0.0.1:17844/haptic` returns `404 not found`.
+2. Confirm `curl -i http://127.0.0.1:17844/haptic` returns `405 method not allowed`.
 3. Confirm direct POST returns `202 accepted` and fires a haptic.
 4. Start OpenCode with `OPENCODE_LOGITECH_HAPTICS_CONFIG` set.
 5. Trigger an OpenCode session completion.
