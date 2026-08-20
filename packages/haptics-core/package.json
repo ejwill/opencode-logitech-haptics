@@ -1,0 +1,10 @@
+{
+  "name": "@opencode-logitech-haptics/core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Runtime-neutral configuration and localhost transport for OpenCode Logitech Haptics adapters",
+  "exports": { ".": "./src/index.js" },
+  "files": ["src", "README.md"],
+  "scripts": { "test": "node --test" },
+  "engines": { "node": ">=20" }
+}

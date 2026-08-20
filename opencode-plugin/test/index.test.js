@@ -3,66 +3,62 @@ import assert from "node:assert/strict"
 import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { createLogitechHapticsPlugin, DEFAULT_CONFIG, loadConfig } from "../src/index.js"
+import { createLogitechHapticsPlugin, DEFAULT_CONFIG, loadConfig, loadConfigResult } from "../src/index.js"
 
-function makeShell() {
+function makeFetch({ status = 202, fail = false } = {}) {
   const calls = []
-  const shell = (strings, ...values) => {
-    calls.push({ strings: [...strings], values })
-    return { quiet: async () => ({ exitCode: 0 }) }
+  const fetch = async (url, request) => {
+    calls.push({ url, request, payload: JSON.parse(request.body) })
+    if (fail) throw new Error("bridge unavailable")
+    return { ok: status >= 200 && status < 300, status }
   }
-  shell.calls = calls
-  shell.payloads = () => calls.map((call) => JSON.parse(call.values[1]))
-  return shell
+  fetch.calls = calls
+  return fetch
 }
 
-async function makePlugin(config = {}) {
-  const shell = makeShell()
-  const plugin = createLogitechHapticsPlugin({ ...DEFAULT_CONFIG, suppressDuplicatesMs: 0, ...config })
-  const hooks = await plugin({ $, directory: "/tmp/project", worktree: "/tmp/project" })
-  return { shell, hooks }
-
-  function $(strings, ...values) {
-    return shell(strings, ...values)
-  }
+async function makePlugin(config = {}, options = {}) {
+  const fetch = options.fetch ?? makeFetch()
+  const plugin = createLogitechHapticsPlugin({ ...DEFAULT_CONFIG, suppressDuplicatesMs: 0, ...config }, { fetchImpl: fetch, now: options.now })
+  const hooks = await plugin({ directory: "/tmp/project", worktree: "/tmp/project" })
+  return { fetch, hooks }
 }
 
 describe("loadConfig", () => {
-  it("returns default config when no env vars are set", () => {
-    const config = loadConfig({})
+  it("returns default config when no config source exists", () => {
+    const config = loadConfig({ env: {}, cwd: "/does-not-exist" })
     assert.equal(config.enabled, true)
     assert.equal(config.endpoint, "http://127.0.0.1:17844/haptic")
-    assert.equal(config.suppressDuplicatesMs, 750)
   })
 
-  it("overrides endpoint from env", () => {
-    const config = loadConfig({ LOGITECH_HAPTICS_URL: "http://10.0.0.1:19876/haptic" })
-    assert.equal(config.endpoint, "http://10.0.0.1:19876/haptic")
+  it("rejects non-loopback endpoints without failing initialization", () => {
+    const result = loadConfigResult({ env: { LOGITECH_HAPTICS_URL: "http://10.0.0.1:19876/haptic" }, cwd: "/does-not-exist" })
+    assert.equal(result.config.endpoint, "http://127.0.0.1:17844/haptic")
+    assert.match(result.diagnostics.join("\n"), /loopback/)
   })
 
-  it("overrides config from env path", async () => {
+  it("loads JSONC from the documented default path", async () => {
     const dir = await mkdtemp(join(tmpdir(), "opencode-logitech-haptics-"))
-    const path = join(dir, "config.json")
-    await writeFile(path, JSON.stringify({ endpoint: "http://custom:9999/haptic", events: { complete: false } }))
-
+    await writeFile(join(dir, "opencode-logitech-haptics.jsonc"), "// local bridge\n{ \"events\": { \"complete\": false } }")
     try {
-      const config = loadConfig({ OPENCODE_LOGITECH_HAPTICS_CONFIG: path })
-      assert.equal(config.endpoint, "http://custom:9999/haptic")
+      const config = loadConfig({ env: {}, cwd: dir })
       assert.equal(config.events.complete, false)
       assert.equal(config.events.error, true)
-    } finally {
-      await rm(dir, { recursive: true, force: true })
-    }
+    } finally { await rm(dir, { recursive: true, force: true }) }
+  })
+
+  it("reports malformed configuration while preserving defaults", () => {
+    const result = loadConfigResult({ env: { OPENCODE_LOGITECH_HAPTICS_CONFIG: "/bad.json" }, readFile: () => "{ bad", exists: () => true })
+    assert.equal(result.config.endpoint, DEFAULT_CONFIG.endpoint)
+    assert.match(result.diagnostics.join("\n"), /Could not read configuration/)
   })
 })
 
 describe("createLogitechHapticsPlugin", () => {
   it("fires complete event on session.idle", async () => {
-    const { shell, hooks } = await makePlugin()
+    const { fetch, hooks } = await makePlugin()
     await hooks.event({ event: { type: "session.idle", properties: { session: { time: { created: new Date(Date.now() - 10_000).toISOString() } } } } })
-
-    assert.equal(shell.calls.length, 1)
-    const payload = shell.payloads()[0]
+    assert.equal(fetch.calls.length, 1)
+    const payload = fetch.calls[0].payload
     assert.equal(payload.event, "complete")
     assert.equal(payload.source, "opencode")
     assert.equal(payload.message, "OpenCode session completed")
@@ -70,51 +66,34 @@ describe("createLogitechHapticsPlugin", () => {
     assert.ok(payload.durationSeconds >= 0)
   })
 
-  it("fires error event on session.error", async () => {
-    const { shell, hooks } = await makePlugin()
+  it("routes error, permission, and tool events", async () => {
+    const { fetch, hooks } = await makePlugin()
     await hooks.event({ event: { type: "session.error" } })
-
-    assert.equal(shell.calls.length, 1)
-    assert.equal(shell.payloads()[0].event, "error")
-  })
-
-  it("fires permission event on permission.ask", async () => {
-    const { shell, hooks } = await makePlugin()
     await hooks["permission.ask"]({ type: "shell" })
-
-    assert.equal(shell.calls.length, 1)
-    const payload = shell.payloads()[0]
-    assert.equal(payload.event, "permission")
-    assert.equal(payload.permissionType, "shell")
-  })
-
-  it("fires tool routing events", async () => {
-    const { shell, hooks } = await makePlugin()
     await hooks["tool.execute.before"]({ tool: "question" })
     await hooks["tool.execute.before"]({ tool: "plan_exit" })
-
-    assert.deepEqual(shell.payloads().map((payload) => payload.event), ["question", "plan_exit"])
+    assert.deepEqual(fetch.calls.map((call) => call.payload.event), ["error", "permission", "question", "plan_exit"])
+    assert.equal(fetch.calls[1].payload.permissionType, "shell")
   })
 
   it("filters disabled events", async () => {
-    const { shell, hooks } = await makePlugin({ events: { ...DEFAULT_CONFIG.events, complete: false } })
+    const { fetch, hooks } = await makePlugin({ events: { ...DEFAULT_CONFIG.events, complete: false } })
     await hooks.event({ event: { type: "session.idle" } })
-
-    assert.equal(shell.calls.length, 0)
+    assert.equal(fetch.calls.length, 0)
   })
 
-  it("respects suppressDuplicatesMs", async () => {
-    const { shell, hooks } = await makePlugin({ suppressDuplicatesMs: 1_000 })
+  it("does not suppress a retry after a failed send", async () => {
+    const fetch = makeFetch({ fail: true })
+    const { hooks } = await makePlugin({ suppressDuplicatesMs: 1_000 }, { fetch, now: () => 1000 })
     await hooks.event({ event: { type: "session.error" } })
     await hooks.event({ event: { type: "session.error" } })
-
-    assert.equal(shell.calls.length, 1)
+    assert.equal(fetch.calls.length, 2)
   })
 
-  it("handles disabled plugin", async () => {
-    const { shell, hooks } = await makePlugin({ enabled: false })
+  it("suppresses a successful duplicate", async () => {
+    const { fetch, hooks } = await makePlugin({ suppressDuplicatesMs: 1_000 }, { now: () => 1000 })
     await hooks.event({ event: { type: "session.error" } })
-
-    assert.equal(shell.calls.length, 0)
+    await hooks.event({ event: { type: "session.error" } })
+    assert.equal(fetch.calls.length, 1)
   })
 })

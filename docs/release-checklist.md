@@ -7,6 +7,7 @@ Use this checklist to cut a GitHub Release after CI and hardware validation are 
 - [ ] Hardware validation completed or intentionally deferred.
 - [ ] `README.md` still accurately states hardware validation status.
 - [ ] Version in `opencode-plugin/package.json` matches the intended tag.
+- [ ] Version in `opencode-plugin-v2/package.json` matches the intended tag.
 - [ ] `main` contains the commits you want to release.
 - [ ] No tracked local changes:
 
@@ -18,6 +19,8 @@ git status --short
 
 ```bash
 npm test
+npm --workspace @opencode-logitech-haptics/core test
+npm --workspace opencode-logitech-haptics-v2 test
 ```
 
 ```bash
@@ -43,7 +46,7 @@ missing=400:missing event
 invalid=400:invalid json
 unknown=204:
 get=404:not found
-raised=opencodeComplete
+raised=opencodeComplete,opencodeTest,...
 ```
 
 ## 3. Push main
@@ -73,7 +76,7 @@ v0.1.0 -> OpenCodeHaptics_0_1_0.lplug4
 
 In GitHub Actions, confirm the tag run completed:
 
-- [ ] `OpenCode plugin` job passed.
+- [ ] `OpenCode plugin packages` job passed.
 - [ ] `Logitech plugin` job passed.
 - [ ] `GitHub release` job passed.
 
@@ -83,6 +86,7 @@ The release for `v0.1.0` should contain:
 
 - [ ] generated release notes
 - [ ] OpenCode npm package: `opencode-logitech-haptics-0.1.0.tgz`
+- [ ] OpenCode v2 npm package: `opencode-logitech-haptics-v2-0.1.0.tgz`
 - [ ] Logitech package: `OpenCodeHaptics_0_1_0.lplug4`
 
 Download the `.lplug4` asset and verify it locally if possible:

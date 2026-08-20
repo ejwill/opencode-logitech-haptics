@@ -5,6 +5,7 @@ OpenCode Logitech Haptics connects OpenCode notification events to Logitech MX M
 This repository is a monorepo with two pieces:
 
 - **OpenCode plugin**: listens for OpenCode events and sends normalized events to localhost.
+- **Shared notification core**: validates adapter configuration and owns the loopback-only bridge transport.
 - **Logitech plugin**: a C# Logi Actions SDK plugin that receives those events and raises MX Master 4 haptic events.
 
 ## Architecture
@@ -26,6 +27,8 @@ MX Master 4 / MX 4 haptic feedback
 
 ```text
 opencode-plugin/                    # OpenCode JavaScript plugin
+opencode-plugin-v2/                 # Separate OpenCode v2 beta package
+packages/haptics-core/               # Runtime-neutral configuration and bridge transport
 logitech-plugin/OpenCodeHapticsPlugin/ # C# Logi Actions SDK plugin
 tests/PluginApiStubs/               # source-built CI stub for PluginApi.dll
 tests/ServerSmokeTest/              # curl-based HTTP bridge smoke test
@@ -50,6 +53,8 @@ Run the OpenCode plugin tests:
 ```bash
 npm test
 ```
+
+This runs the legacy adapter, the shared core, and the OpenCode v2 adapter test suites.
 
 Build, smoke test, package, and verify the Logitech plugin:
 
@@ -101,7 +106,7 @@ git push origin v0.1.0
 
 The release workflow attaches:
 
-- the OpenCode npm package (`*.tgz`)
+- both OpenCode npm packages (`*.tgz`)
 - the Logitech plugin package (`OpenCodeHaptics_<version>.lplug4`)
 
 Branch/PR CI artifacts include the ref type, sanitized ref, and short SHA, for example `OpenCodeHaptics_branch_main_1234567.lplug4`. Tagged releases keep version-only names, for example `OpenCodeHaptics_0_1_0.lplug4`.

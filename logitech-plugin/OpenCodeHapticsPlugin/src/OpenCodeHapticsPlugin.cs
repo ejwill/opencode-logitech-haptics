@@ -19,8 +19,9 @@ namespace Loupedeck.OpenCodeHapticsPlugin
         public override void Load()
         {
             this.RegisterHapticEvents();
-            this._server = new OpenCodeHapticsServer(DefaultPort, this.RaiseHapticEvent);
-            this._server.Start();
+            var server = new OpenCodeHapticsServer(DefaultPort, this.RaiseHapticEvent);
+            if (server.Start()) this._server = server;
+            else server.Dispose();
         }
 
         public override void Unload()

@@ -1,37 +1,8 @@
 import { existsSync, readFileSync } from "node:fs"
+import { join } from "node:path"
+import { createNotifier, DEFAULT_CONFIG, normalizeConfig, stripJsonComments } from "@opencode-logitech-haptics/core"
 
-const DEFAULT_ENDPOINT = "http://127.0.0.1:17844/haptic"
-
-export const DEFAULT_CONFIG = Object.freeze({
-  enabled: true,
-  endpoint: DEFAULT_ENDPOINT,
-  events: Object.freeze({
-    complete: true,
-    permission: true,
-    error: true,
-    question: true,
-    plan_exit: true,
-    session_started: false,
-    user_message: false,
-    subagent_complete: false,
-  }),
-  minDurationSeconds: 0,
-  suppressDuplicatesMs: 750,
-})
-
-function deepMergeConfig(base, override = {}) {
-  return { ...base, ...override, events: { ...base.events, ...(override.events ?? {}) } }
-}
-
-export function loadConfig(env = process.env) {
-  let config = DEFAULT_CONFIG
-  const configPath = env.OPENCODE_LOGITECH_HAPTICS_CONFIG
-  if (configPath && existsSync(configPath)) {
-    config = deepMergeConfig(config, JSON.parse(readFileSync(configPath, "utf8")))
-  }
-  if (env.LOGITECH_HAPTICS_URL) config = { ...config, endpoint: env.LOGITECH_HAPTICS_URL }
-  return config
-}
+export { DEFAULT_CONFIG }
 
 function sessionDurationSeconds(event) {
   const session = event?.properties?.session ?? event?.session ?? {}
@@ -42,32 +13,43 @@ function sessionDurationSeconds(event) {
   return Math.max(0, (Date.now() - started) / 1000)
 }
 
-export function createLogitechHapticsPlugin(config = loadConfig()) {
-  const lastSentAt = new Map()
-  return async ({ $, directory, worktree }) => {
-    const shell = $
+function defaultConfigPath(cwd, exists = existsSync) {
+  for (const filename of ["opencode-logitech-haptics.jsonc", "opencode-logitech-haptics.json"]) {
+    const candidate = join(cwd, filename)
+    if (exists(candidate)) return candidate
+  }
+  return undefined
+}
 
-    async function trigger(eventName, message, extra = {}) {
-      if (!config.enabled || !config.events?.[eventName]) return false
-      const now = Date.now()
-      const suppressMs = Number(config.suppressDuplicatesMs ?? 0)
-      const previous = lastSentAt.get(eventName) ?? 0
-      if (suppressMs > 0 && now - previous < suppressMs) return false
-      lastSentAt.set(eventName, now)
-      const payload = JSON.stringify({ source: "opencode", event: eventName, message, directory, worktree, time: new Date(now).toISOString(), ...extra })
-      try {
-        await shell`curl -fsS -X POST ${config.endpoint} -H "Content-Type: application/json" --data ${payload}`.quiet()
-        return true
-      } catch {
-        return false
-      }
+export function loadConfigResult({ env = process.env, cwd = process.cwd(), exists = existsSync, readFile = readFileSync } = {}) {
+  const diagnostics = []
+  const path = env.OPENCODE_LOGITECH_HAPTICS_CONFIG || defaultConfigPath(cwd, exists)
+  let override = {}
+  if (path) {
+    try {
+      override = JSON.parse(stripJsonComments(readFile(path, "utf8")))
+    } catch (error) {
+      diagnostics.push(`Could not read configuration at ${path}: ${error.message}`)
     }
+  }
+  if (env.LOGITECH_HAPTICS_URL) override = { ...override, endpoint: env.LOGITECH_HAPTICS_URL }
+  const normalized = normalizeConfig(override)
+  return { config: normalized.config, diagnostics: [...diagnostics, ...normalized.diagnostics], path }
+}
 
+export function loadConfig(options) {
+  return loadConfigResult(options).config
+}
+
+export function createLogitechHapticsPlugin(config = loadConfig(), dependencies = {}) {
+  const notifier = createNotifier({ config, fetchImpl: dependencies.fetchImpl, now: dependencies.now })
+  return async ({ directory, worktree }) => {
+    const trigger = (event, message, extra = {}) => notifier.notify(event, { message, directory, worktree, ...extra })
     return {
       event: async ({ event }) => {
         if (event?.type === "session.idle") {
           const duration = sessionDurationSeconds(event)
-          if (duration !== undefined && duration < Number(config.minDurationSeconds ?? 0)) return
+          if (duration !== undefined && duration < notifier.config.minDurationSeconds) return
           await trigger("complete", "OpenCode session completed", { durationSeconds: duration })
         }
         if (event?.type === "session.error") await trigger("error", "OpenCode session error")

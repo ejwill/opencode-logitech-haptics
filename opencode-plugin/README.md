@@ -44,6 +44,8 @@ Config can be loaded from:
 - `OPENCODE_LOGITECH_HAPTICS_CONFIG` env var pointing to a JSON file
 - `LOGITECH_HAPTICS_URL` env var overrides the endpoint
 
+Only `http://127.0.0.1`, `http://localhost`, and `http://[::1]` endpoints are accepted. Invalid configuration falls back safely to defaults; adapter consumers can inspect `loadConfigResult().diagnostics` for the reason.
+
 The OpenCode layer controls **when to notify**. It should not contain Logitech waveform details.
 
 ## Live hardware test
