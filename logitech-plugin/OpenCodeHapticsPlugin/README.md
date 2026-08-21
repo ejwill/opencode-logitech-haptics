@@ -56,8 +56,12 @@ raised=opencodeComplete
 
 ```bash
 dotnet tool restore --tool-manifest dotnet-tools.json
-dotnet tool run logiplugintool pack logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ OpenCodeCompanion_0_1.lplug4
-dotnet tool run logiplugintool verify OpenCodeCompanion_0_1.lplug4
+node scripts/package-logitech.mjs \
+  logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
+  artifacts/logitech \
+  OpenCodeCompanion_0_1
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1.lplug4
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_marketplace.lplug4
 ```
 
 On machines with only newer .NET runtimes installed, prefix the `logiplugintool` commands with `DOTNET_ROLL_FORWARD=Major`.

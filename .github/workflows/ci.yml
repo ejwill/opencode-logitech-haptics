@@ -76,7 +76,7 @@ jobs:
             SHORT_SHA="${GITHUB_SHA::7}"
             SUFFIX="${GITHUB_REF_TYPE}_${SAFE_REF}_${SHORT_SHA}"
           fi
-          echo "LOGITECH_PACKAGE=OpenCodeCompanion_${SUFFIX}.lplug4" >> "$GITHUB_ENV"
+          echo "LOGITECH_PACKAGE_BASE=OpenCodeCompanion_${SUFFIX}" >> "$GITHUB_ENV"
 
       - name: Restore .NET tools
         run: dotnet tool restore --tool-manifest dotnet-tools.json
@@ -96,23 +96,24 @@ jobs:
           PLUGIN_DLL_PATH: ${{ github.workspace }}/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll
         run: dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c "$CONFIGURATION"
 
-      - name: Pack Logitech plugin
+      - name: Pack Logitech plugin for local install and marketplace
         run: >-
-          dotnet tool run logiplugintool pack
+          node scripts/package-logitech.mjs
           logitech-plugin/OpenCodeHapticsPlugin/bin/$CONFIGURATION/
-          "$LOGITECH_PACKAGE"
+          artifacts/logitech/
+          "$LOGITECH_PACKAGE_BASE"
 
-      - name: Verify Logitech plugin package
-        run: dotnet tool run logiplugintool verify "$LOGITECH_PACKAGE"
+      - name: Verify Logitech marketplace ZIP
+        run: node scripts/verify-logitech-package.mjs "artifacts/logitech/${LOGITECH_PACKAGE_BASE}_marketplace.lplug4"
 
-      - name: Check Logitech package metadata contract
-        run: node scripts/verify-logitech-package.mjs "$LOGITECH_PACKAGE"
+      - name: Verify Logitech direct-install tar
+        run: node scripts/verify-logitech-package.mjs "artifacts/logitech/${LOGITECH_PACKAGE_BASE}.lplug4"
 
       - name: Upload Logitech plugin package
         uses: actions/upload-artifact@v7
         with:
           name: logitech-plugin-package
-          path: ${{ env.LOGITECH_PACKAGE }}
+          path: artifacts/logitech/*.lplug4
           if-no-files-found: error
 
       - name: Upload Logitech plugin build

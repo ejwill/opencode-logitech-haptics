@@ -15,7 +15,7 @@ Use this checklist when you are ready to validate the bridge on a real Logitech 
 
 ## 1. Install the Logitech plugin
 
-Install the `.lplug4` package with the CLI path below. This is the deterministic install path when double-clicking the package reports `plugin installation cannot start`:
+Build both package forms below. The marketplace artifact is a ZIP, matching current published Logitech packages. The unsuffixed artifact is also emitted as a clean POSIX USTAR tar for hosts that require that format; the current `logiplugintool install` command on this machine still rejects the tar with a misleading metadata error, so package-install acceptance remains a host-version gate:
 
 If you are using a locally built package, build and verify it first:
 
@@ -26,12 +26,12 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
   /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
+node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
-  OpenCodeCompanion_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install OpenCodeCompanion_0_1_0.lplug4
-node scripts/verify-logitech-install.mjs OpenCodeCompanion
+  artifacts/logitech \
+  OpenCodeCompanion_0_1_0
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0_marketplace.lplug4
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
 ```
 
 For local source validation on macOS, build against the installed Plugin Service API instead:
@@ -161,7 +161,7 @@ Mappings live in:
 
 ## 6. Record validation results
 
-Validation recorded on 2026-08-21: the `.link` development build loaded through Logi Plugin Service 6.4.1.3246, the live endpoint returned `202` for `test`, `complete`, `error`, `permission`, `question`, and `plan_exit`, and the connected MX 4 produced a physical vibration. The packaged `.lplug4` installer remains a separate unresolved gate.
+Validation recorded on 2026-08-21: the `.link` development build loaded through Logi Plugin Service 6.4.1.3246, the live endpoint returned `202` for `test`, `complete`, `error`, `permission`, `question`, and `plan_exit`, and the connected MX 4 produced a physical vibration. The package forms now verify structurally; clean marketplace installation remains a separate host acceptance gate.
 
 After testing, record:
 

@@ -69,10 +69,12 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
+node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
-  OpenCodeCompanion_0_1.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1.lplug4
+  artifacts/logitech \
+  OpenCodeCompanion_0_1
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_marketplace.lplug4
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1.lplug4
 ```
 
 `DOTNET_ROLL_FORWARD=Major` is only needed on machines with a newer runtime but no .NET 10 runtime. GitHub Actions installs .NET 10 and does not need it.

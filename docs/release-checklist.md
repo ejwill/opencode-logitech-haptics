@@ -32,10 +32,12 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
+node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
-  OpenCodeCompanion_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1_0.lplug4
+  artifacts/logitech \
+  OpenCodeCompanion_0_1_0
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0_marketplace.lplug4
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
 ```
 
 Expected smoke output:
@@ -87,12 +89,13 @@ The release for `v0.1.0` should contain:
 - [ ] generated release notes
 - [ ] OpenCode npm package: `opencode-logitech-haptics-0.1.0.tgz`
 - [ ] OpenCode v2 npm package: `opencode-logitech-haptics-v2-0.1.0.tgz`
-- [ ] Logitech package: `OpenCodeCompanion_0_1_0.lplug4`
+- [ ] Logitech direct-install package: `OpenCodeCompanion_0_1_0.lplug4`
+- [ ] Logitech marketplace ZIP: `OpenCodeCompanion_0_1_0_marketplace.lplug4`
 
 Download the `.lplug4` asset and verify it locally if possible:
 
 ```bash
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1_0.lplug4
+node scripts/verify-logitech-package.mjs OpenCodeCompanion_0_1_0_marketplace.lplug4
 ```
 
 ## 7. If the release workflow fails

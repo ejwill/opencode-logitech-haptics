@@ -55,15 +55,20 @@ npm pack --workspace opencode-logitech-haptics --pack-destination artifacts/npm
 npm pack --workspace opencode-logitech-haptics-v2 --pack-destination artifacts/npm
 ```
 
-Package and verify the Logitech plugin:
+Package and verify both Logitech plugin artifacts:
 
 ```bash
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
+node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
-  artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify \
+  artifacts/logitech \
+  OpenCodeCompanion_0_1_0
+node scripts/verify-logitech-package.mjs \
+  artifacts/logitech/OpenCodeCompanion_0_1_0_marketplace.lplug4
+node scripts/verify-logitech-package.mjs \
   artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
 ```
+
+The unsuffixed `.lplug4` is the uncompressed tar artifact for direct local Logi Plugin Service installation. The `_marketplace.lplug4` artifact is the ZIP upload for Logitech marketplace submission.
 
 Use the actual package version in the output filename when it differs from `0.1.0`.
 
@@ -83,7 +88,7 @@ packed-adapters=ok
 
 ## 4. Install the Logitech bridge
 
-Install the verified `.lplug4` with the Logi Plugin Tool:
+Install the verified direct-install tar with the Logi Plugin Tool:
 
 ```bash
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install \
