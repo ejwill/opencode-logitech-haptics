@@ -4,18 +4,18 @@ Use this checklist when you are ready to validate the bridge on a real Logitech 
 
 ## Prerequisites
 
-- Logi Options+ installed and running.
-- Logi Plugin Service installed and running.
+- Logi Options+ or Loupedeck installed and running.
+- Logi Plugin Service installed, enabled, and running.
 - MX Master 4 / MX 4 paired and haptics enabled.
 - A verified `.lplug4` package from either:
-  - local build: `OpenCodeHaptics_*.lplug4`
+  - local build: `OpenCodeCompanion_*.lplug4`
   - GitHub Actions artifact: `logitech-plugin-package`
   - GitHub Release asset
 - OpenCode available for live event testing.
 
 ## 1. Install the Logitech plugin
 
-Install the `.lplug4` package through the normal Logi Plugin Service / Options+ flow for local plugins.
+Build both package forms below. The marketplace artifact is a ZIP, matching current published Logitech packages. The unsuffixed artifact is also emitted as a clean POSIX USTAR tar for hosts that require that format; the current `logiplugintool install` command on this machine still rejects the tar with a misleading metadata error, so package-install acceptance remains a host-version gate:
 
 If you are using a locally built package, build and verify it first:
 
@@ -25,14 +25,26 @@ dotnet build tests/PluginApiStubs/PluginApiStubs.csproj -c Release
 dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
-  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net8.0/"
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
+  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
+node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
-  OpenCodeHaptics_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeHaptics_0_1_0.lplug4
+  artifacts/logitech \
+  OpenCodeCompanion_0_1_0
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0_marketplace.lplug4
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
 ```
 
-`DOTNET_ROLL_FORWARD=Major` is only needed on machines that have a newer .NET runtime but not the .NET 8 runtime.
+For local source validation on macOS, build against the installed Plugin Service API instead:
+
+```bash
+dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
+  -c Release \
+  /p:PluginApiDir="/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/"
+```
+
+This creates a development `.link` and reloads the plugin. It avoids the distributable `.lplug4` installer while validating that the current host can load the plugin.
+
+`DOTNET_ROLL_FORWARD=Major` is only needed on machines that have a newer .NET runtime but not the .NET 10 runtime.
 
 ## 2. Verify the plugin loaded
 
@@ -149,6 +161,8 @@ Mappings live in:
 
 ## 6. Record validation results
 
+Validation recorded on 2026-08-21: the `.link` development build loaded through Logi Plugin Service 6.4.1.3246, the live endpoint returned `202` for `test`, `complete`, `error`, `permission`, `question`, and `plan_exit`, and the connected MX 4 produced a physical vibration. The package forms now verify structurally; clean marketplace installation remains a separate host acceptance gate.
+
 After testing, record:
 
 - Date/time:
@@ -214,7 +228,24 @@ Try lowering or disabling duplicate suppression in the live-test config:
 Run package verification:
 
 ```bash
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeHaptics_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1_0.lplug4
 ```
 
-If verification fails, rebuild from a clean tree and retry.
+Then inspect the package metadata and install it without the GUI association:
+
+```bash
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool metadata OpenCodeCompanion_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install OpenCodeCompanion_0_1_0.lplug4
+```
+
+If verification fails, rebuild from a clean tree and retry. If verification and CLI installation succeed but the plugin does not load, the remaining failure is in the host/Plugin Service runtime or plugin startup; record that separately from package-format validation.
+
+If the package still reports `plugin installation cannot start` but the development-link build loads the plugin, treat the package installer and the plugin runtime as separate gates. Keep using the `.link` workflow for local development while the Logi Plugin Tool/LPS package-install compatibility is resolved.
+
+If installation prints:
+
+```text
+ERROR: Cannot connect to Logi Plugin Service. Check that it is running.
+```
+
+install or repair Logi Options+ or Loupedeck, start the host application, confirm that Logi Plugin Service is enabled, and retry. Starting the `.lplug4` installer without a reachable Plugin Service cannot complete package installation.

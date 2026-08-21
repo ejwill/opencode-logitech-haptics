@@ -1,4 +1,6 @@
-# OpenCode Haptics Logitech Plugin
+# OpenCode Companion Logitech Plugin
+
+This is an independent community integration and is not affiliated with or endorsed by the OpenCode project.
 
 C# Logitech Actions SDK plugin for MX Master 4 / MX 4 haptics.
 
@@ -13,7 +15,7 @@ dotnet build tests/PluginApiStubs/PluginApiStubs.csproj -c Release
 dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
-  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net8.0/"
+  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 ```
 
 `/p:SkipLogiDeploy=true` skips writing the local Logi Plugin Service `.link` file and reloading the plugin, which is required on CI and useful on machines without Logi Options+.
@@ -32,10 +34,10 @@ Expected: `HTTP/1.1 202 Accepted`.
 
 For the full real-device checklist, see [`../../docs/hardware-validation.md`](../../docs/hardware-validation.md).
 
-CI also runs a smoke test directly against `OpenCodeHapticsServer`:
+CI also runs a smoke test directly against `OpenCodeCompanionServer`:
 
 ```bash
-PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeHapticsPlugin.dll" \
+PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 ```
 
@@ -54,8 +56,12 @@ raised=opencodeComplete
 
 ```bash
 dotnet tool restore --tool-manifest dotnet-tools.json
-dotnet tool run logiplugintool pack logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ OpenCodeHaptics_0_1.lplug4
-dotnet tool run logiplugintool verify OpenCodeHaptics_0_1.lplug4
+node scripts/package-logitech.mjs \
+  logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
+  artifacts/logitech \
+  OpenCodeCompanion_0_1
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1.lplug4
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_marketplace.lplug4
 ```
 
 On machines with only newer .NET runtimes installed, prefix the `logiplugintool` commands with `DOTNET_ROLL_FORWARD=Major`.

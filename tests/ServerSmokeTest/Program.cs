@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Collections.Concurrent;
 
 var pluginPath = Environment.GetEnvironmentVariable("PLUGIN_DLL_PATH")
-    ?? Path.GetFullPath("logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeHapticsPlugin.dll");
+    ?? Path.GetFullPath("logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll");
 
 if (!File.Exists(pluginPath))
 {
@@ -12,7 +12,7 @@ if (!File.Exists(pluginPath))
 }
 
 var assembly = Assembly.LoadFrom(pluginPath);
-var serverType = assembly.GetType("Loupedeck.OpenCodeHapticsPlugin.OpenCodeHapticsServer", throwOnError: true)!;
+var serverType = assembly.GetType("Loupedeck.OpenCodeCompanionPlugin.OpenCodeCompanionServer", throwOnError: true)!;
 var raised = new ConcurrentQueue<String>();
 var port = Int32.Parse(Environment.GetEnvironmentVariable("HAPTICS_TEST_PORT") ?? "18744");
 using var server = (IDisposable)Activator.CreateInstance(

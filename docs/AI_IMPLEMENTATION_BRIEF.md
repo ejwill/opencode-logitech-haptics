@@ -100,14 +100,14 @@ Create the project with:
 
 ```bash
 dotnet tool install --global LogiPluginTool
-logiplugintool generate OpenCodeHaptics
-cd OpenCodeHaptics
+logiplugintool generate OpenCodeCompanion
+cd OpenCodeCompanion
 dotnet build
 ```
 
 The plugin must include:
 
-- `OpenCodeHapticsPlugin : Plugin`
+- `OpenCodeCompanionPlugin : Plugin`
 - `OpenCodeHapticsApplication : ClientApplication`
 - haptic event registration with `this.PluginEvents.AddEvent(...)`
 - haptic event triggering with `this.PluginEvents.RaiseEvent(...)`
@@ -183,12 +183,13 @@ Expected: HTTP `200 OK` and haptic feedback on MX Master 4 / MX 4.
 
 ## Packaging
 
-Package Logitech plugin as `.lplug4`:
+Package Logitech plugin as separate direct-install and marketplace `.lplug4` artifacts:
 
 ```bash
 dotnet build -c Release
-logiplugintool pack ./bin/Release/ ./OpenCodeHaptics_0_1.lplug4
-logiplugintool verify ./OpenCodeHaptics_0_1.lplug4
+node scripts/package-logitech.mjs ./bin/Release/ ./artifacts/logitech OpenCodeCompanion_0_1
+node scripts/verify-logitech-package.mjs ./artifacts/logitech/OpenCodeCompanion_0_1.lplug4
+node scripts/verify-logitech-package.mjs ./artifacts/logitech/OpenCodeCompanion_0_1_marketplace.lplug4
 ```
 
 ## Acceptance criteria
@@ -199,4 +200,4 @@ logiplugintool verify ./OpenCodeHaptics_0_1.lplug4
 - MX Master 4 / MX 4 haptics trigger for session complete, permission request, error, question, and plan ready.
 - Event filtering is configurable in OpenCode layer.
 - Haptic mapping is configurable in Logitech/YAML layer.
-- Logitech plugin can be packaged and verified as `.lplug4`.
+- Logitech plugin can be packaged and verified as both direct-install tar and marketplace ZIP `.lplug4` artifacts.

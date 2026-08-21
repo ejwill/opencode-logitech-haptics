@@ -6,8 +6,8 @@ C# Logi Actions SDK plugin for MX Master 4 / MX 4 haptic notifications from Open
 
 ```bash
 dotnet tool install --global LogiPluginTool
-logiplugintool generate OpenCodeHaptics
-cd OpenCodeHaptics
+logiplugintool generate OpenCodeCompanion
+cd OpenCodeCompanion
 dotnet build
 ```
 

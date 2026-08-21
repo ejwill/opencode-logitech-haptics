@@ -1,4 +1,4 @@
-namespace Loupedeck.OpenCodeHapticsPlugin
+namespace Loupedeck.OpenCodeCompanionPlugin
 {
     using System;
     using System.Collections.Generic;
