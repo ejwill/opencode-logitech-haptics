@@ -4,7 +4,7 @@
   "notifications": {
     "turnStarted": false,
     "completion": true,
-    "permission": true,
+    "permission": false,
     "question": true,
     "error": true,
     "planReady": true,
@@ -12,5 +12,6 @@
     "subagentCompletion": false
   },
   "minDurationSeconds": 0,
-  "suppressDuplicatesMs": 750
+  "suppressDuplicatesMs": 750,
+  "timeoutMs": 2000
 }

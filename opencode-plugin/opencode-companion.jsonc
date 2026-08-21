@@ -1,15 +1,15 @@
 {
   "enabled": true,
   "endpoint": "http://127.0.0.1:17844/haptic",
-  "events": {
-    "complete": true,
+  "notifications": {
+    "turnStarted": false,
+    "completion": true,
     "permission": true,
-    "error": true,
     "question": true,
-    "plan_exit": true,
-    "session_started": false,
-    "user_message": false,
-    "subagent_complete": false
+    "error": true,
+    "planReady": true,
+    "userMessage": false,
+    "subagentCompletion": false
   },
   "minDurationSeconds": 0,
   "suppressDuplicatesMs": 750

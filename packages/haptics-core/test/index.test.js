@@ -11,6 +11,15 @@ describe("normalizeConfig", () => {
     assert.match(diagnostics.join("\n"), /unsupported/)
   })
 
+  it("translates user-facing notification preferences into bridge events", () => {
+    const { config, diagnostics } = normalizeConfig({ notifications: { completion: false, planReady: false } })
+    assert.equal(config.notifications.completion, false)
+    assert.equal(config.notifications.planReady, false)
+    assert.equal(config.events.complete, false)
+    assert.equal(config.events.plan_exit, false)
+    assert.deepEqual(diagnostics, [])
+  })
+
   it("strips JSONC comments without changing URL-like strings", () => {
     assert.equal(stripJsonComments('{ "endpoint": "http://127.0.0.1/haptic" } // note'), '{ "endpoint": "http://127.0.0.1/haptic" } \n')
   })

@@ -9,19 +9,19 @@ const artifactsDirectory = process.argv[2]
 if (!artifactsDirectory) throw new Error("Usage: node scripts/verify-packed-adapters.mjs <artifact-directory>")
 
 const artifacts = await readdir(artifactsDirectory)
-const legacyTarball = artifacts.find((name) => name.startsWith("opencode-logitech-haptics-") && !name.startsWith("opencode-logitech-haptics-v2-"))
-const v2Tarball = artifacts.find((name) => name.startsWith("opencode-logitech-haptics-v2-"))
+const legacyTarball = artifacts.find((name) => name.startsWith("opencode-companion-") && !name.startsWith("opencode-companion-v2-"))
+const v2Tarball = artifacts.find((name) => name.startsWith("opencode-companion-v2-"))
 if (!legacyTarball || !v2Tarball) throw new Error("Both legacy and v2 package tarballs are required.")
 
-const prefix = await mkdtemp(join(tmpdir(), "opencode-logitech-haptics-artifact-"))
+const prefix = await mkdtemp(join(tmpdir(), "opencode-companion-artifact-"))
 try {
   execFileSync("npm", ["install", "--prefix", prefix, "--ignore-scripts", join(artifactsDirectory, legacyTarball), join(artifactsDirectory, v2Tarball)], { stdio: "inherit" })
   const installed = join(prefix, "node_modules")
-  const legacy = await import(pathToFileURL(join(installed, "opencode-logitech-haptics", "src", "index.js")))
-  const v2 = await import(pathToFileURL(join(installed, "opencode-logitech-haptics-v2", "src", "index.js")))
+  const legacy = await import(pathToFileURL(join(installed, "opencode-companion", "src", "index.js")))
+  const v2 = await import(pathToFileURL(join(installed, "opencode-companion-v2", "src", "index.js")))
 
   assert.equal(typeof legacy.createLogitechHapticsPlugin, "function")
-  assert.equal(v2.default.id, "opencode.logitech-haptics")
+  assert.equal(v2.default.id, "opencode.companion")
   assert.equal(typeof v2.default.setup, "function")
 
   const delivered = []

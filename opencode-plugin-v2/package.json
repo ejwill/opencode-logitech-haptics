@@ -1,11 +1,11 @@
 {
-  "name": "opencode-logitech-haptics-v2",
+  "name": "opencode-companion-v2",
   "version": "0.1.0",
   "type": "module",
   "description": "OpenCode v2 beta plugin that forwards configured notification events to a local Logitech haptics bridge",
   "main": "src/index.js",
   "exports": { ".": "./src/index.js" },
-  "files": ["src", "scripts", "README.md"],
+  "files": ["src", "scripts", "README.md", "config.example.jsonc"],
   "dependencies": {
     "@opencode-ai/plugin": "0.0.0-beta-17498",
     "@opencode-logitech-haptics/core": "file:../packages/haptics-core"

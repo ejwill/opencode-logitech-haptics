@@ -14,7 +14,7 @@ function sessionDurationSeconds(event) {
 }
 
 function defaultConfigPath(cwd, exists = existsSync) {
-  for (const filename of ["opencode-logitech-haptics.jsonc", "opencode-logitech-haptics.json"]) {
+  for (const filename of ["opencode-companion.jsonc", "opencode-companion.json"]) {
     const candidate = join(cwd, filename)
     if (exists(candidate)) return candidate
   }

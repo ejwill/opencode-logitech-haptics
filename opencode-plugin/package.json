@@ -1,5 +1,5 @@
 {
-  "name": "opencode-logitech-haptics",
+  "name": "opencode-companion",
   "version": "0.1.0",
   "type": "module",
   "description": "OpenCode plugin that forwards notification events to a local Logitech haptics bridge",

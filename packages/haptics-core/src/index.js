@@ -1,5 +1,16 @@
 export const DEFAULT_ENDPOINT = "http://127.0.0.1:17844/haptic"
 
+export const NOTIFICATION_EVENTS = Object.freeze({
+  turnStarted: "session_started",
+  completion: "complete",
+  permission: "permission",
+  question: "question",
+  error: "error",
+  planReady: "plan_exit",
+  userMessage: "user_message",
+  subagentCompletion: "subagent_complete",
+})
+
 export const DEFAULT_CONFIG = Object.freeze({
   enabled: true,
   endpoint: DEFAULT_ENDPOINT,
@@ -12,6 +23,16 @@ export const DEFAULT_CONFIG = Object.freeze({
     session_started: false,
     user_message: false,
     subagent_complete: false,
+  }),
+  notifications: Object.freeze({
+    turnStarted: false,
+    completion: true,
+    permission: true,
+    question: true,
+    error: true,
+    planReady: true,
+    userMessage: false,
+    subagentCompletion: false,
   }),
   minDurationSeconds: 0,
   suppressDuplicatesMs: 750,
@@ -43,7 +64,7 @@ export function normalizeConfig(override = {}, defaults = DEFAULT_CONFIG) {
     return { config: defaults, diagnostics: ["Configuration must be a JSON object; using defaults."] }
   }
 
-  const config = { ...defaults, events: { ...defaults.events } }
+  const config = { ...defaults, events: { ...defaults.events }, notifications: { ...defaults.notifications } }
   if (typeof override.enabled === "boolean") config.enabled = override.enabled
   else if (override.enabled !== undefined) diagnostics.push("enabled must be a boolean; using default.")
 
@@ -52,6 +73,19 @@ export function normalizeConfig(override = {}, defaults = DEFAULT_CONFIG) {
     else diagnostics.push("endpoint must be an http loopback URL; using default.")
   }
 
+  if (override.notifications !== undefined) {
+    if (!isRecord(override.notifications)) diagnostics.push("notifications must be an object; using defaults.")
+    else for (const [notification, enabled] of Object.entries(override.notifications)) {
+      if (notification in config.notifications && typeof enabled === "boolean") {
+        config.notifications[notification] = enabled
+        config.events[NOTIFICATION_EVENTS[notification]] = enabled
+      } else if (notification in config.notifications) diagnostics.push(`notifications.${notification} must be a boolean; using default.`)
+      else diagnostics.push(`notifications.${notification} is unsupported and was ignored.`)
+    }
+  }
+
+  // The internal bridge-event form is applied last so normalized configs can
+  // be passed through this function without re-enabling an intentional override.
   if (override.events !== undefined) {
     if (!isRecord(override.events)) diagnostics.push("events must be an object; using defaults.")
     else for (const [event, enabled] of Object.entries(override.events)) {
@@ -66,7 +100,7 @@ export function normalizeConfig(override = {}, defaults = DEFAULT_CONFIG) {
     if (finiteNonNegative(override[key])) config[key] = override[key]
     else diagnostics.push(`${key} must be a non-negative number; using default.`)
   }
-  return { config: Object.freeze({ ...config, events: Object.freeze(config.events) }), diagnostics }
+  return { config: Object.freeze({ ...config, events: Object.freeze(config.events), notifications: Object.freeze(config.notifications) }), diagnostics }
 }
 
 export function stripJsonComments(source) {

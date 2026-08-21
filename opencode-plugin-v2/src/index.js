@@ -1,25 +1,45 @@
 import { Plugin } from "@opencode-ai/plugin"
 import { createNotifier, SUPPORTED_EVENTS } from "@opencode-logitech-haptics/core"
+import { resolveV2Options } from "./config.js"
 
-export const PLUGIN_ID = "opencode.logitech-haptics"
+export const PLUGIN_ID = "opencode.companion"
+
+function eventPayload(event) {
+  if (event?.properties && typeof event.properties === "object") return event.properties
+  if (event?.data && typeof event.data === "object") return event.data
+  return {}
+}
 
 export function notificationFromV2Event(event, eventTypes = {}) {
-  const notification = eventTypes?.[event?.type]
+  const type = event?.type
+  const payload = eventPayload(event)
+  const formKind = payload.form?.metadata?.kind
+  const propertyKey = type === "form.created" && typeof formKind === "string" ? `${type}:${formKind}` : undefined
+  const notification = eventTypes?.[propertyKey] ?? eventTypes?.[type]
   if (typeof notification !== "string" || !SUPPORTED_EVENTS.includes(notification)) return undefined
-  return { event: notification, message: `OpenCode v2 event: ${event.type}` }
+  return { event: notification, message: `OpenCode v2 event: ${type}` }
+}
+
+export function observedV2EventType(event, logEventType) {
+  const type = event?.type
+  if (typeof type !== "string" || type.length === 0) return
+  logEventType(type)
 }
 
 export function createV2Plugin(pluginApi = Plugin, dependencies = {}) {
   return pluginApi.define({
     id: PLUGIN_ID,
     setup: async (ctx) => {
-      const notifier = createNotifier({ config: ctx.options, fetchImpl: dependencies.fetchImpl })
+      const options = resolveV2Options(ctx.options, dependencies)
+      const notifier = createNotifier({ config: options, fetchImpl: dependencies.fetchImpl })
       const controller = new AbortController()
-      const eventTypes = ctx.options?.eventTypes ?? {}
+      const eventTypes = options.eventTypes
+      const logEventType = dependencies.logEventType ?? ((type) => console.info(`[${PLUGIN_ID}] observed event type: ${type}`))
       const streamTask = (async () => {
         try {
           for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
             if (controller.signal.aborted) return
+              if (options.logEventTypes === true) observedV2EventType(event, logEventType)
             const notification = notificationFromV2Event(event, eventTypes)
             if (notification) await notifier.notify(notification.event, notification)
           }

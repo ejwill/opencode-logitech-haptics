@@ -1,4 +1,4 @@
-# AI Implementation Brief: OpenCode Logitech Haptics
+# AI Implementation Brief: OpenCode Companion
 
 ## Goal
 
@@ -11,7 +11,7 @@ The project must not depend on third-party OpenCode notification plugins. It sho
 Use one monorepo:
 
 ```text
-opencode-logitech-haptics
+opencode-companion
 ```
 
 ## Architecture

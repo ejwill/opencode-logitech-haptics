@@ -38,7 +38,7 @@ describe("loadConfig", () => {
 
   it("loads JSONC from the documented default path", async () => {
     const dir = await mkdtemp(join(tmpdir(), "opencode-logitech-haptics-"))
-    await writeFile(join(dir, "opencode-logitech-haptics.jsonc"), "// local bridge\n{ \"events\": { \"complete\": false } }")
+    await writeFile(join(dir, "opencode-companion.jsonc"), "// local bridge\n{ \"events\": { \"complete\": false } }")
     try {
       const config = loadConfig({ env: {}, cwd: dir })
       assert.equal(config.events.complete, false)
