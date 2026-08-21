@@ -1,16 +1,16 @@
-namespace Loupedeck.OpenCodeHapticsPlugin
+namespace Loupedeck.OpenCodeCompanionPlugin
 {
     using System;
 
-    public class OpenCodeHapticsPlugin : Plugin
+    public class OpenCodeCompanionPlugin : Plugin
     {
         private const Int32 DefaultPort = 17844;
-        private OpenCodeHapticsServer _server;
+        private OpenCodeCompanionServer _server;
 
         public override Boolean UsesApplicationApiOnly => true;
         public override Boolean HasNoApplication => true;
 
-        public OpenCodeHapticsPlugin()
+        public OpenCodeCompanionPlugin()
         {
             PluginLog.Init(this.Log);
             PluginResources.Init(this.Assembly);
@@ -19,7 +19,7 @@ namespace Loupedeck.OpenCodeHapticsPlugin
         public override void Load()
         {
             this.RegisterHapticEvents();
-            var server = new OpenCodeHapticsServer(DefaultPort, this.RaiseHapticEvent);
+            var server = new OpenCodeCompanionServer(DefaultPort, this.RaiseHapticEvent);
             if (server.Start()) this._server = server;
             else server.Dispose();
         }

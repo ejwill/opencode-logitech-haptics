@@ -6,16 +6,16 @@
 type: plugin4
 
 # Name that identifies the plugin.
-name: OpenCodeHaptics
+name: OpenCodeCompanion
 
 # Plugin name that is shown to the user.
-displayName: OpenCodeHaptics
+displayName: OpenCode Companion
 
 # Short description of the plugin.
-description: Triggers Logitech haptics from OpenCode notifications.
+description: An independent Logitech companion for OpenCode with MX Master 4 haptic notifications and optional Actions Ring controls.
 
 # Name of the plugin library file.
-pluginFileName: OpenCodeHapticsPlugin.dll
+pluginFileName: OpenCodeCompanionPlugin.dll
 
 # Plugin version.
 version: 1.0

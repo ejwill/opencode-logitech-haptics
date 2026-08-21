@@ -100,14 +100,14 @@ Create the project with:
 
 ```bash
 dotnet tool install --global LogiPluginTool
-logiplugintool generate OpenCodeHaptics
-cd OpenCodeHaptics
+logiplugintool generate OpenCodeCompanion
+cd OpenCodeCompanion
 dotnet build
 ```
 
 The plugin must include:
 
-- `OpenCodeHapticsPlugin : Plugin`
+- `OpenCodeCompanionPlugin : Plugin`
 - `OpenCodeHapticsApplication : ClientApplication`
 - haptic event registration with `this.PluginEvents.AddEvent(...)`
 - haptic event triggering with `this.PluginEvents.RaiseEvent(...)`
@@ -187,8 +187,8 @@ Package Logitech plugin as `.lplug4`:
 
 ```bash
 dotnet build -c Release
-logiplugintool pack ./bin/Release/ ./OpenCodeHaptics_0_1.lplug4
-logiplugintool verify ./OpenCodeHaptics_0_1.lplug4
+logiplugintool pack ./bin/Release/ ./OpenCodeCompanion_0_1.lplug4
+logiplugintool verify ./OpenCodeCompanion_0_1.lplug4
 ```
 
 ## Acceptance criteria

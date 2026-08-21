@@ -8,7 +8,7 @@ This guide covers the complete local path: build the two OpenCode packages and t
 | --- | --- | --- |
 | `opencode-logitech-haptics-<version>.tgz` | Legacy OpenCode adapter | Your legacy OpenCode plugin environment |
 | `opencode-logitech-haptics-v2-<version>.tgz` | OpenCode v2 beta adapter | OpenCode v2 package/configuration |
-| `OpenCodeHaptics_<version>.lplug4` | Local Logitech HTTP bridge and haptic mappings | Logi Options+ / Logi Plugin Service |
+| `OpenCodeCompanion_<version>.lplug4` | Local Logitech HTTP bridge, haptic mappings, and OpenCode companion actions | Logi Options+ / Logi Plugin Service |
 
 Both adapters POST only to the local loopback bridge at `http://127.0.0.1:17844/haptic` by default. They do not send haptic events to remote endpoints.
 
@@ -39,7 +39,7 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
   /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
-PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeHapticsPlugin.dll" \
+PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 ```
 
@@ -60,9 +60,9 @@ Package and verify the Logitech plugin:
 ```bash
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
-  artifacts/logitech/OpenCodeHaptics_0_1_0.lplug4
+  artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify \
-  artifacts/logitech/OpenCodeHaptics_0_1_0.lplug4
+  artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
 ```
 
 Use the actual package version in the output filename when it differs from `0.1.0`.
@@ -87,8 +87,8 @@ Install the verified `.lplug4` with the Logi Plugin Tool:
 
 ```bash
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install \
-  /absolute/path/to/OpenCodeHaptics_0_1_0.lplug4
-node scripts/verify-logitech-install.mjs OpenCodeHaptics
+  /absolute/path/to/OpenCodeCompanion_0_1_0.lplug4
+node scripts/verify-logitech-install.mjs OpenCodeCompanion
 ```
 
 The `.lplug4` double-click flow is a convenience path and depends on a host application such as Logi Options+ or Loupedeck being installed and the Logi Plugin Service package installer being registered. If the GUI reports `plugin installation cannot start`, use the CLI command above.

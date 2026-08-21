@@ -1,4 +1,4 @@
-namespace Loupedeck.OpenCodeHapticsPlugin
+namespace Loupedeck.OpenCodeCompanionPlugin
 {
     using System;
     using System.IO;
@@ -8,7 +8,7 @@ namespace Loupedeck.OpenCodeHapticsPlugin
     using System.Threading;
     using System.Threading.Tasks;
 
-    internal sealed class OpenCodeHapticsServer : IDisposable
+    internal sealed class OpenCodeCompanionServer : IDisposable
     {
         private const Int32 MaxRequestBodyBytes = 16 * 1024;
         private readonly HttpListener _listener = new();
@@ -18,7 +18,7 @@ namespace Loupedeck.OpenCodeHapticsPlugin
         private Task _serveTask;
         private Boolean _disposed;
 
-        public OpenCodeHapticsServer(Int32 port, Action<String> raiseHapticEvent)
+        public OpenCodeCompanionServer(Int32 port, Action<String> raiseHapticEvent)
         {
             this.Port = port;
             this._raiseHapticEvent = raiseHapticEvent ?? throw new ArgumentNullException(nameof(raiseHapticEvent));
@@ -31,7 +31,7 @@ namespace Loupedeck.OpenCodeHapticsPlugin
         {
             lock (this._lifecycleLock)
             {
-                if (this._disposed) throw new ObjectDisposedException(nameof(OpenCodeHapticsServer));
+                if (this._disposed) throw new ObjectDisposedException(nameof(OpenCodeCompanionServer));
                 if (this._serveTask != null) return true;
                 var cancellation = new CancellationTokenSource();
                 try

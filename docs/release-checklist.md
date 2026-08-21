@@ -30,12 +30,12 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
   /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
-PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeHapticsPlugin.dll" \
+PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
-  OpenCodeHaptics_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeHaptics_0_1_0.lplug4
+  OpenCodeCompanion_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1_0.lplug4
 ```
 
 Expected smoke output:
@@ -69,7 +69,7 @@ git push origin v0.1.0
 CI converts tag dots to underscores for the Logitech package name:
 
 ```text
-v0.1.0 -> OpenCodeHaptics_0_1_0.lplug4
+v0.1.0 -> OpenCodeCompanion_0_1_0.lplug4
 ```
 
 ## 5. Verify GitHub Actions
@@ -87,12 +87,12 @@ The release for `v0.1.0` should contain:
 - [ ] generated release notes
 - [ ] OpenCode npm package: `opencode-logitech-haptics-0.1.0.tgz`
 - [ ] OpenCode v2 npm package: `opencode-logitech-haptics-v2-0.1.0.tgz`
-- [ ] Logitech package: `OpenCodeHaptics_0_1_0.lplug4`
+- [ ] Logitech package: `OpenCodeCompanion_0_1_0.lplug4`
 
 Download the `.lplug4` asset and verify it locally if possible:
 
 ```bash
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeHaptics_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1_0.lplug4
 ```
 
 ## 7. If the release workflow fails

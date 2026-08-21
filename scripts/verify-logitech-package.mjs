@@ -63,6 +63,11 @@ for (const [field, value] of required) {
   }
 }
 
+if (metadata.name !== "OpenCodeCompanion" || metadata.displayName !== "OpenCode Companion") {
+  console.error(`Unexpected marketplace identity: ${metadata.name} / ${metadata.displayName}`)
+  process.exit(1)
+}
+
 for (const [field, expected] of [
   ["isWindowsSupported", true],
   ["isMacSupported", true],

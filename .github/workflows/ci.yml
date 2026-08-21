@@ -76,7 +76,7 @@ jobs:
             SHORT_SHA="${GITHUB_SHA::7}"
             SUFFIX="${GITHUB_REF_TYPE}_${SAFE_REF}_${SHORT_SHA}"
           fi
-          echo "LOGITECH_PACKAGE=OpenCodeHaptics_${SUFFIX}.lplug4" >> "$GITHUB_ENV"
+          echo "LOGITECH_PACKAGE=OpenCodeCompanion_${SUFFIX}.lplug4" >> "$GITHUB_ENV"
 
       - name: Restore .NET tools
         run: dotnet tool restore --tool-manifest dotnet-tools.json
@@ -93,7 +93,7 @@ jobs:
 
       - name: Smoke test Logitech HTTP bridge
         env:
-          PLUGIN_DLL_PATH: ${{ github.workspace }}/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeHapticsPlugin.dll
+          PLUGIN_DLL_PATH: ${{ github.workspace }}/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll
         run: dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c "$CONFIGURATION"
 
       - name: Pack Logitech plugin

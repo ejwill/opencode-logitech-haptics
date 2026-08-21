@@ -4,7 +4,7 @@ import os from "node:os"
 import path from "node:path"
 import { existsSync } from "node:fs"
 
-const pluginName = process.argv[2] ?? "OpenCodeHaptics"
+const pluginName = process.argv[2] ?? "OpenCodeCompanion"
 const pluginDirectory = path.join(
   os.homedir(),
   "Library",
@@ -17,7 +17,7 @@ const pluginDirectory = path.join(
 
 const requiredFiles = [
   "metadata/LoupedeckPackage.yaml",
-  "bin/OpenCodeHapticsPlugin.dll",
+  "bin/OpenCodeCompanionPlugin.dll",
   "events/DefaultEventSource.yaml",
   "events/extra/eventMapping.yaml",
 ]

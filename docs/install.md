@@ -9,14 +9,14 @@ This guide is for installing the packaged OpenCode + Logitech haptics bridge.
 Use either local artifacts or GitHub Release assets:
 
 - OpenCode plugin npm package: `opencode-logitech-haptics-0.1.0.tgz`
-- Logitech plugin package: `OpenCodeHaptics_0_1_0.lplug4`
+- Logitech plugin package: `OpenCodeCompanion_0_1_0.lplug4`
 
 Local artifacts can be created with:
 
 ```bash
 mkdir -p artifacts/npm artifacts/logitech
 npm pack --workspace opencode-logitech-haptics --pack-destination artifacts/npm
-cp OpenCodeHaptics_0_1_0.lplug4 artifacts/logitech/
+cp OpenCodeCompanion_0_1_0.lplug4 artifacts/logitech/
 ```
 
 ## 1. Install the Logitech plugin
@@ -27,12 +27,12 @@ Prerequisites:
 - Logi Plugin Service installed and enabled by the host application.
 - MX Master 4 / MX 4 paired with haptics enabled.
 
-Verify and install `OpenCodeHaptics_0_1_0.lplug4` with the Logi Plugin Tool. This avoids relying on the operating system's `.lplug4` file association:
+Verify and install `OpenCodeCompanion_0_1_0.lplug4` with the Logi Plugin Tool. This avoids relying on the operating system's `.lplug4` file association:
 
 ```bash
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify /absolute/path/OpenCodeHaptics_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install /absolute/path/OpenCodeHaptics_0_1_0.lplug4
-node scripts/verify-logitech-install.mjs OpenCodeHaptics
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify /absolute/path/OpenCodeCompanion_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install /absolute/path/OpenCodeCompanion_0_1_0.lplug4
+node scripts/verify-logitech-install.mjs OpenCodeCompanion
 ```
 
 The SDK's GUI path is also supported: double-click the package after installing a host application. If it reports that plugin installation cannot start, use the CLI commands above and restart the host application / Logi Plugin Service.
@@ -45,7 +45,7 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   /p:PluginApiDir="/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/"
 ```
 
-The build creates `OpenCodeHapticsPlugin.link`, pointing Logi Plugin Service at the build output. Restart Logi Plugin Service or Logi Options+ if the plugin does not appear.
+The build creates `OpenCodeCompanion.link`, pointing Logi Plugin Service at the build output. Restart Logi Plugin Service or Logi Options+ if the plugin does not appear.
 
 On macOS, the installed plugin directory is:
 

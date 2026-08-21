@@ -8,7 +8,7 @@ Use this checklist when you are ready to validate the bridge on a real Logitech 
 - Logi Plugin Service installed, enabled, and running.
 - MX Master 4 / MX 4 paired and haptics enabled.
 - A verified `.lplug4` package from either:
-  - local build: `OpenCodeHaptics_*.lplug4`
+  - local build: `OpenCodeCompanion_*.lplug4`
   - GitHub Actions artifact: `logitech-plugin-package`
   - GitHub Release asset
 - OpenCode available for live event testing.
@@ -28,10 +28,10 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
-  OpenCodeHaptics_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeHaptics_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install OpenCodeHaptics_0_1_0.lplug4
-node scripts/verify-logitech-install.mjs OpenCodeHaptics
+  OpenCodeCompanion_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install OpenCodeCompanion_0_1_0.lplug4
+node scripts/verify-logitech-install.mjs OpenCodeCompanion
 ```
 
 For local source validation on macOS, build against the installed Plugin Service API instead:
@@ -228,14 +228,14 @@ Try lowering or disabling duplicate suppression in the live-test config:
 Run package verification:
 
 ```bash
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeHaptics_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeCompanion_0_1_0.lplug4
 ```
 
 Then inspect the package metadata and install it without the GUI association:
 
 ```bash
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool metadata OpenCodeHaptics_0_1_0.lplug4
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install OpenCodeHaptics_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool metadata OpenCodeCompanion_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install OpenCodeCompanion_0_1_0.lplug4
 ```
 
 If verification fails, rebuild from a clean tree and retry. If verification and CLI installation succeed but the plugin does not load, the remaining failure is in the host/Plugin Service runtime or plugin startup; record that separately from package-format validation.
