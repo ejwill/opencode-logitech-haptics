@@ -23,11 +23,35 @@ cp OpenCodeHaptics_0_1_0.lplug4 artifacts/logitech/
 
 Prerequisites:
 
-- Logi Options+ installed.
-- Logi Plugin Service running.
+- Logi Options+ or Loupedeck installed as the host application.
+- Logi Plugin Service installed and enabled by the host application.
 - MX Master 4 / MX 4 paired with haptics enabled.
 
-Install `OpenCodeHaptics_0_1_0.lplug4` using the normal Logi Options+ / Logi Plugin Service local plugin install flow.
+Verify and install `OpenCodeHaptics_0_1_0.lplug4` with the Logi Plugin Tool. This avoids relying on the operating system's `.lplug4` file association:
+
+```bash
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify /absolute/path/OpenCodeHaptics_0_1_0.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install /absolute/path/OpenCodeHaptics_0_1_0.lplug4
+node scripts/verify-logitech-install.mjs OpenCodeHaptics
+```
+
+The SDK's GUI path is also supported: double-click the package after installing a host application. If it reports that plugin installation cannot start, use the CLI commands above and restart the host application / Logi Plugin Service.
+
+For a source checkout on macOS, use the SDK development-link workflow instead of installing a local package:
+
+```bash
+dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
+  -c Release \
+  /p:PluginApiDir="/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/"
+```
+
+The build creates `OpenCodeHapticsPlugin.link`, pointing Logi Plugin Service at the build output. Restart Logi Plugin Service or Logi Options+ if the plugin does not appear.
+
+On macOS, the installed plugin directory is:
+
+```text
+~/Library/Application Support/Logi/LogiPluginService/Plugins/
+```
 
 After install, confirm the HTTP bridge is listening:
 

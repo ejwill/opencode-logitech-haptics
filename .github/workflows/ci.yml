@@ -63,7 +63,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Set package name
         run: |
@@ -89,7 +89,7 @@ jobs:
           dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln
           -c "$CONFIGURATION"
           /p:SkipLogiDeploy=true
-          /p:PluginApiDir="$GITHUB_WORKSPACE/tests/PluginApiStubs/bin/$CONFIGURATION/net8.0/"
+          /p:PluginApiDir="$GITHUB_WORKSPACE/tests/PluginApiStubs/bin/$CONFIGURATION/net10.0/"
 
       - name: Smoke test Logitech HTTP bridge
         env:
@@ -104,6 +104,9 @@ jobs:
 
       - name: Verify Logitech plugin package
         run: dotnet tool run logiplugintool verify "$LOGITECH_PACKAGE"
+
+      - name: Check Logitech package metadata contract
+        run: node scripts/verify-logitech-package.mjs "$LOGITECH_PACKAGE"
 
       - name: Upload Logitech plugin package
         uses: actions/upload-artifact@v7

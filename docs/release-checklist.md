@@ -29,7 +29,7 @@ dotnet build tests/PluginApiStubs/PluginApiStubs.csproj -c Release
 dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
-  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net8.0/"
+  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeHapticsPlugin.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \

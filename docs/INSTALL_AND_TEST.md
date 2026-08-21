@@ -15,7 +15,7 @@ Both adapters POST only to the local loopback bridge at `http://127.0.0.1:17844/
 ## Prerequisites
 
 - Node.js 20 or newer and npm.
-- .NET SDK 8 for the Logitech package.
+- .NET SDK 10 for the Logitech package and the current Logi Plugin Service API.
 - Legacy OpenCode (`opencode`) for the legacy adapter and/or OpenCode v2 (`opencode2`) for the v2 adapter.
 - For real haptics: Logi Options+, the Logi Plugin Service, and a supported MX Master 4 / MX 4 with haptics enabled.
 
@@ -38,7 +38,7 @@ dotnet build tests/PluginApiStubs/PluginApiStubs.csproj -c Release
 dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
-  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net8.0/"
+  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeHapticsPlugin.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 ```
@@ -83,7 +83,33 @@ packed-adapters=ok
 
 ## 4. Install the Logitech bridge
 
-Install the verified `.lplug4` through the normal local-plugin flow in Logi Options+ / Logi Plugin Service. After the plugin is loaded, verify the bridge is reachable:
+Install the verified `.lplug4` with the Logi Plugin Tool:
+
+```bash
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install \
+  /absolute/path/to/OpenCodeHaptics_0_1_0.lplug4
+node scripts/verify-logitech-install.mjs OpenCodeHaptics
+```
+
+The `.lplug4` double-click flow is a convenience path and depends on a host application such as Logi Options+ or Loupedeck being installed and the Logi Plugin Service package installer being registered. If the GUI reports `plugin installation cannot start`, use the CLI command above.
+
+For local source development, build against the installed host API instead:
+
+```bash
+dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
+  -c Release \
+  /p:PluginApiDir="/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/"
+```
+
+This writes a `.link` file and reloads the plugin without using the distributable-package installer.
+
+On macOS, the Plugin Service extracts installed packages into:
+
+```text
+~/Library/Application Support/Logi/LogiPluginService/Plugins/
+```
+
+After the plugin is loaded, verify the bridge is reachable:
 
 ```bash
 curl -i http://127.0.0.1:17844/haptic

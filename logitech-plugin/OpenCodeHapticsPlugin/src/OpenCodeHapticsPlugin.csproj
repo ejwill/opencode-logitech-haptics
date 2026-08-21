@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <RootNamespace>Loupedeck.OpenCodeHapticsPlugin</RootNamespace>
@@ -27,6 +27,8 @@
   <ItemGroup>
     <Reference Include="PluginApi">
       <HintPath>$(PluginApiDir)PluginApi.dll</HintPath>
+      <!-- PluginApi is provided by Logi Plugin Service; never ship the host API in the package. -->
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 

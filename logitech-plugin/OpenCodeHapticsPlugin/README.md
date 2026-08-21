@@ -13,7 +13,7 @@ dotnet build tests/PluginApiStubs/PluginApiStubs.csproj -c Release
 dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
-  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net8.0/"
+  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 ```
 
 `/p:SkipLogiDeploy=true` skips writing the local Logi Plugin Service `.link` file and reloading the plugin, which is required on CI and useful on machines without Logi Options+.

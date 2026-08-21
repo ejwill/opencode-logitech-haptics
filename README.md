@@ -64,7 +64,7 @@ dotnet build tests/PluginApiStubs/PluginApiStubs.csproj -c Release
 dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   -c Release \
   /p:SkipLogiDeploy=true \
-  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net8.0/"
+  /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeHapticsPlugin.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
@@ -73,7 +73,25 @@ DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool pack \
 DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool verify OpenCodeHaptics_0_1.lplug4
 ```
 
-`DOTNET_ROLL_FORWARD=Major` is only needed on machines with a newer runtime but no .NET 8 runtime. GitHub Actions installs .NET 8 and does not need it.
+`DOTNET_ROLL_FORWARD=Major` is only needed on machines with a newer runtime but no .NET 10 runtime. GitHub Actions installs .NET 10 and does not need it.
+
+For local development against an installed Logi Plugin Service, build without `SkipLogiDeploy` and point at the host's API assembly:
+
+```bash
+dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
+  -c Release \
+  /p:PluginApiDir="/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/"
+```
+
+This creates a `.link` file in the Logi Plugin Service `Plugins` directory and asks the service to reload the plugin. It is the preferred local-development path; `SkipLogiDeploy=true` is for CI and package-only validation.
+
+To install a verified package without relying on the `.lplug4` file association, use the Logi Plugin Tool directly:
+
+```bash
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install /absolute/path/OpenCodeHaptics_0_1.lplug4
+```
+
+The SDK installs the package into the Logi Plugin Service `Plugins` directory. A double-click install requires a host application such as Logi Options+ or Loupedeck and a registered Logi Plugin Service package installer.
 
 ## Manual bridge test
 
@@ -133,7 +151,7 @@ Check `OPENCODE_LOGITECH_HAPTICS_CONFIG`, verify OpenCode loaded the plugin, and
 2. Generate the Logitech plugin scaffold. ✅
 3. Add a localhost HTTP listener to the Logitech plugin. ✅
 4. Register Logitech haptic events and add YAML waveform mappings. ✅
-5. Test with `curl`, then with real OpenCode events. CI curl smoke test ✅; real hardware validation pending.
+5. Test with `curl`, then with real OpenCode events. CI curl smoke test ✅; MX 4 hardware validation ✅ through the local `.link` workflow.
 6. Package the Logitech plugin as `.lplug4`; optionally package the OpenCode plugin on npm. ✅
 
 See [`docs/AI_IMPLEMENTATION_BRIEF.md`](docs/AI_IMPLEMENTATION_BRIEF.md) for the complete implementation brief.
