@@ -4,7 +4,7 @@
   "notifications": {
     "turnStarted": false,
     "completion": true,
-    "permission": false,
+    "permission": true,
     "question": true,
     "error": true,
     "planReady": true,

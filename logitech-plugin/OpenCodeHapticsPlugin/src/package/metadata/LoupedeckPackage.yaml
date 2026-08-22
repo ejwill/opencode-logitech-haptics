@@ -12,7 +12,7 @@ name: OpenCodeCompanion
 displayName: OpenCode Companion
 
 # Short description of the plugin.
-description: An independent Logitech companion for OpenCode with MX Master 4 haptic notifications and optional Actions Ring controls.
+description: Feel OpenCode events through clear, configurable haptic feedback on your Logitech MX Master 4.
 
 # Name of the plugin library file.
 pluginFileName: OpenCodeCompanionPlugin.dll
@@ -21,10 +21,10 @@ pluginFileName: OpenCodeCompanionPlugin.dll
 version: 1.0
 
 # Author of the plugin. The author can be a company or an individual developer.
-author: hermes
+author: ejwill
 
 # Copyright information.
-copyright: Copyright © 2026 hermes. All rights reserved.
+copyright: Copyright © 2026 Erwin Will. All rights reserved.
 
 
 # ==================================================================================================

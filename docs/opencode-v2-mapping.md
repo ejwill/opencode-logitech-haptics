@@ -18,6 +18,7 @@ The following mappings are owned by the adapter for the current live beta runtim
 turnStarted  <- session.execution.started
 completion   <- session.execution.succeeded
 error        <- session.execution.interrupted
+permission   <- permission.v2.asked
 question     <- form.created where metadata.kind = question
 ```
 

@@ -4,6 +4,8 @@ OpenCode Companion is an independent Logitech integration for OpenCode. It conne
 
 OpenCode Companion is not affiliated with or endorsed by the OpenCode project.
 
+The plugin icon is based on the OpenCode square brand asset. OpenCode and its logo are trademarks of their respective owner; this project uses the mark to identify compatibility and is independently maintained.
+
 This repository is a monorepo with two pieces:
 
 - **OpenCode plugin**: listens for OpenCode events and sends normalized events to localhost.
@@ -76,6 +78,14 @@ node scripts/package-logitech.mjs \
 node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_marketplace.lplug4
 node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1.lplug4
 ```
+
+### Configure haptics in Logi Options+
+
+The Logitech plugin includes notification toggle actions under **OpenCode Companion → Haptic Preferences**. Assign the toggles you want to device buttons and press one to enable or disable that notification’s vibration. The choices persist in Logi Plugin Service and are applied to bridge events immediately.
+
+The **Test Haptic Feedback** action remains under **OpenCode Companion → Diagnostics**. Use it to confirm the device and haptic path before tuning notification preferences.
+
+The Logitech SDK exposes the haptic waveform mapping through the packaged `events/extra/eventMapping.yaml`; Options+ does not currently provide a documented global editor for those waveform names. Advanced users can still change the waveform mapping in that file, while the in-app preferences control which notifications are enabled.
 
 `DOTNET_ROLL_FORWARD=Major` is only needed on machines with a newer runtime but no .NET 10 runtime. GitHub Actions installs .NET 10 and does not need it.
 

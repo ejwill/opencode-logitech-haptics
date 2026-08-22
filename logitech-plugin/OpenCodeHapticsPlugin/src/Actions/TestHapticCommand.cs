@@ -5,7 +5,7 @@ namespace Loupedeck.OpenCodeCompanionPlugin
     public class TestHapticCommand : PluginDynamicCommand
     {
         public TestHapticCommand()
-            : base(displayName: "Test OpenCode Haptic", description: "Triggers the OpenCode test haptic event", groupName: "Haptics")
+            : base(displayName: "Test Haptic Feedback", description: "Send a test vibration to confirm Logitech haptics are working", groupName: "OpenCode Companion###Diagnostics")
         {
         }
 

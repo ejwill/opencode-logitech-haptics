@@ -1,22 +1,22 @@
 displayName: OpenCode Companion
-description: Haptic events emitted from OpenCode notifications
+description: Haptic feedback for OpenCode Companion notifications
 
 events:
     - name: opencodeComplete
-      displayName: OpenCode Complete
-      description: OpenCode session completed
+      displayName: Turn Complete
+      description: OpenCode finished a turn
     - name: opencodePermission
-      displayName: OpenCode Permission
-      description: OpenCode is asking for permission
+      displayName: Permission Request
+      description: OpenCode needs your approval
     - name: opencodeError
-      displayName: OpenCode Error
-      description: OpenCode reported an error
+      displayName: Turn Error
+      description: OpenCode encountered an error
     - name: opencodeQuestion
-      displayName: OpenCode Question
-      description: OpenCode has a question
+      displayName: Question Awaiting Answer
+      description: OpenCode is waiting for your answer
     - name: opencodePlanExit
-      displayName: OpenCode Plan Ready
-      description: OpenCode plan is ready for review
+      displayName: Plan Ready
+      description: OpenCode has a plan ready for review
     - name: opencodeTest
-      displayName: OpenCode Test
-      description: Manual test event
+      displayName: Test Haptic Feedback
+      description: Confirm that your Logitech device can vibrate

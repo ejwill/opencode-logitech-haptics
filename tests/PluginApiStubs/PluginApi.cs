@@ -11,6 +11,13 @@ namespace Loupedeck
         public PluginLogFile Log { get; } = new();
         public Assembly Assembly => this.GetType().Assembly;
         public PluginEvents PluginEvents { get; } = new();
+        public ActionEditorCommandCollection ActionEditorCommands { get; } = new();
+        public Boolean TryGetPluginSetting(String settingName, out String settingValue)
+        {
+            settingValue = null;
+            return false;
+        }
+        public void SetPluginSetting(String settingName, String settingValue, Boolean backupOnline) { }
         public virtual void Load() { }
         public virtual void Unload() { }
     }
@@ -28,6 +35,50 @@ namespace Loupedeck
         protected virtual Boolean OnLoad() => true;
         protected abstract void RunCommand(String actionParameter);
         private sealed class StubPlugin : Plugin { }
+    }
+
+    public abstract class ActionEditorCommand
+    {
+        protected ActionEditorCommand() { }
+        public String Name { get; set; }
+        public String DisplayName { get; set; }
+        public String GroupName { get; set; }
+        public String Description { get; set; }
+        public ActionEditor ActionEditor { get; } = new();
+        public Plugin Plugin { get; set; } = new StubPlugin();
+        protected abstract Boolean RunCommand(ActionEditorActionParameters actionParameters);
+        private sealed class StubPlugin : Plugin { }
+    }
+
+    public sealed class ActionEditorCommandCollection
+    {
+        public void AddAction(ActionEditorCommand action) { }
+        public void Clear() { }
+    }
+
+    public sealed class ActionEditor
+    {
+        public void AddControlEx(ActionEditorControl control) { }
+    }
+
+    public abstract class ActionEditorControl
+    {
+        protected ActionEditorControl(String name, String labelText) { }
+        public ActionEditorControl SetDefaultValue(Boolean value) => this;
+    }
+
+    public sealed class ActionEditorCheckbox : ActionEditorControl
+    {
+        public ActionEditorCheckbox(String name, String labelText) : base(name, labelText) { }
+    }
+
+    public sealed class ActionEditorActionParameters
+    {
+        public Boolean TryGetBoolean(String name, out Boolean value)
+        {
+            value = true;
+            return false;
+        }
     }
 
     public abstract class ClientApplication

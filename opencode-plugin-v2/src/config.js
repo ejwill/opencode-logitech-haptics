@@ -9,6 +9,7 @@ export const DEFAULT_V2_EVENT_TYPES = Object.freeze({
   "session.execution.started": "session_started",
   "session.execution.succeeded": "complete",
   "session.execution.interrupted": "error",
+  "permission.v2.asked": "permission",
   "form.created:question": "question",
 })
 

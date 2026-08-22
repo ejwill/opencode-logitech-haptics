@@ -52,6 +52,12 @@ get=404:not found
 raised=opencodeComplete
 ```
 
+## Configure notification haptics
+
+In Logi Options+, add any of the notification toggle actions from **OpenCode Companion → Haptic Preferences** to a device button. Pressing a toggle enables or disables that notification’s vibration. The choices are stored by Logi Plugin Service and apply to future OpenCode bridge events.
+
+Use **Test Haptic Feedback** from **OpenCode Companion → Diagnostics** to verify the device path. Waveform selection remains an advanced package setting in `events/extra/eventMapping.yaml`; the SDK does not document a general Options+ waveform editor.
+
 ## Package
 
 ```bash
