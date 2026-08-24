@@ -6,6 +6,8 @@ namespace Loupedeck.OpenCodeCompanionPlugin
     {
         private const Int32 DefaultPort = 17844;
         private OpenCodeCompanionServer _server;
+        internal OpenCodeControlClient OpenCodeControls { get; } = new();
+        private String _lastOpenCodeSessionID;
 
         public override Boolean UsesApplicationApiOnly => true;
         public override Boolean HasNoApplication => true;
@@ -20,7 +22,7 @@ namespace Loupedeck.OpenCodeCompanionPlugin
         {
             this.RegisterHapticEvents();
             this.ActionEditorCommands.AddAction(new HapticPreferencesCommand());
-            var server = new OpenCodeCompanionServer(DefaultPort, this.RaiseHapticEvent);
+            var server = new OpenCodeCompanionServer(DefaultPort, this.HandleOpenCodeEvent, this.ReportOpenCodeServerUrl);
             if (server.Start()) this._server = server;
             else server.Dispose();
         }
@@ -30,6 +32,7 @@ namespace Loupedeck.OpenCodeCompanionPlugin
             this.ActionEditorCommands.Clear();
             this._server?.Dispose();
             this._server = null;
+            this._lastOpenCodeSessionID = null;
         }
 
         private void RegisterHapticEvents()
@@ -54,9 +57,27 @@ namespace Loupedeck.OpenCodeCompanionPlugin
             PluginLog.Info($"Raised haptic event: {hapticEvent}");
         }
 
+        private void HandleOpenCodeEvent(String openCodeEvent, String requestedWaveform, String sessionID)
+        {
+            if (!OpenCodeHapticEvents.FromOpenCodeEvent.TryGetValue(openCodeEvent, out var baseEvent)) return;
+            if (!String.IsNullOrWhiteSpace(sessionID)) this._lastOpenCodeSessionID = sessionID;
+            var waveform = this.GetHapticWaveformOverride(baseEvent)
+                ?? (this.GetHapticIntensityOverride(baseEvent) is String intensity ? HapticIntensityProfiles.GetWaveform(intensity, baseEvent) : null)
+                ?? requestedWaveform;
+            this.RaiseHapticEvent(OpenCodeHapticEvents.Resolve(openCodeEvent, waveform));
+        }
+
+        private void ReportOpenCodeServerUrl(String serverUrl)
+        {
+            this.OpenCodeControls.SetServerUrl(serverUrl);
+            PluginLog.Info($"OpenCode server URL received: {serverUrl}");
+        }
+
+        internal String GetLastOpenCodeSessionID() => this._lastOpenCodeSessionID;
+
         internal Boolean IsHapticEventEnabled(String hapticEvent)
         {
-            var settingName = HapticPreferenceSettings.GetSettingName(hapticEvent);
+            var settingName = HapticPreferenceSettings.GetSettingName(OpenCodeHapticEvents.GetBaseEvent(hapticEvent));
             return !this.TryGetPluginSetting(settingName, out var value)
                 || !Boolean.TryParse(value, out var enabled)
                 || enabled;
@@ -64,7 +85,51 @@ namespace Loupedeck.OpenCodeCompanionPlugin
 
         internal void SetHapticEventEnabled(String hapticEvent, Boolean enabled)
         {
-            this.SetPluginSetting(HapticPreferenceSettings.GetSettingName(hapticEvent), enabled.ToString(), false);
+            this.SetPluginSetting(HapticPreferenceSettings.GetSettingName(OpenCodeHapticEvents.GetBaseEvent(hapticEvent)), enabled.ToString(), false);
+        }
+
+        internal String GetHapticWaveform(String hapticEvent, String fallback)
+        {
+            var baseEvent = OpenCodeHapticEvents.GetBaseEvent(hapticEvent);
+            return this.GetHapticWaveformOverride(baseEvent) ?? fallback;
+        }
+
+        internal String GetHapticIntensity(String fallback) => this.GetHapticIntensityOverride() ?? fallback;
+
+        internal String GetHapticIntensity(String hapticEvent, String fallback) => this.GetHapticIntensityOverride(hapticEvent) ?? fallback;
+
+        internal void SetHapticIntensity(String intensity)
+        {
+            if (HapticIntensityProfiles.IsSupported(intensity)) this.SetPluginSetting(HapticPreferenceSettings.Intensity, intensity, false);
+        }
+
+        internal void SetHapticIntensity(String hapticEvent, String intensity)
+        {
+            var baseEvent = OpenCodeHapticEvents.GetBaseEvent(hapticEvent);
+            if (HapticIntensityProfiles.IsSupported(intensity)) this.SetPluginSetting(HapticPreferenceSettings.GetIntensitySettingName(baseEvent), intensity, false);
+        }
+
+        private String GetHapticIntensityOverride() =>
+            this.TryGetPluginSetting(HapticPreferenceSettings.Intensity, out var value) && HapticIntensityProfiles.IsSupported(value) ? value : null;
+
+        private String GetHapticIntensityOverride(String hapticEvent)
+        {
+            var baseEvent = OpenCodeHapticEvents.GetBaseEvent(hapticEvent);
+            return this.TryGetPluginSetting(HapticPreferenceSettings.GetIntensitySettingName(baseEvent), out var eventValue)
+                && HapticIntensityProfiles.IsSupported(eventValue) ? eventValue : this.GetHapticIntensityOverride();
+        }
+
+        private String GetHapticWaveformOverride(String hapticEvent)
+        {
+            var baseEvent = OpenCodeHapticEvents.GetBaseEvent(hapticEvent);
+            return this.TryGetPluginSetting(HapticPreferenceSettings.GetWaveformSettingName(baseEvent), out var value)
+                && HapticWaveforms.IsSupported(value) ? value : null;
+        }
+
+        internal void SetHapticWaveform(String hapticEvent, String waveform)
+        {
+            var baseEvent = OpenCodeHapticEvents.GetBaseEvent(hapticEvent);
+            if (HapticWaveforms.IsSupported(waveform)) this.SetPluginSetting(HapticPreferenceSettings.GetWaveformSettingName(baseEvent), waveform, false);
         }
     }
 }

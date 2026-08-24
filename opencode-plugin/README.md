@@ -22,6 +22,7 @@ http://127.0.0.1:17844/haptic
 {
   "enabled": true,
   "endpoint": "http://127.0.0.1:17844/haptic",
+  "intensity": "normal",
   "notifications": {
     "turnStarted": false,
     "completion": true,
@@ -46,7 +47,7 @@ Config can be loaded from:
 
 Only `http://127.0.0.1`, `http://localhost`, and `http://[::1]` endpoints are accepted. Invalid configuration falls back safely to defaults; adapter consumers can inspect `loadConfigResult().diagnostics` for the reason.
 
-The OpenCode layer controls **when to notify**. It should not contain Logitech waveform details.
+The OpenCode layer controls **when to notify** and may request a validated waveform through the `waveforms` configuration object. Use `intensity` with `subtle`, `normal`, or `strong` to select a curated waveform profile; explicit entries in `waveforms` override that profile. The Logitech package still owns the safe device-specific fallback mapping.
 
 ## Live hardware test
 

@@ -86,7 +86,7 @@ HTTP/1.1 202 Accepted
 accepted
 ```
 
-Expected haptic event: `opencodeTest`.
+Expected haptic event: `test` at the server boundary, mapped to the Logitech `opencodeTest` action.
 
 ### Complete event
 
@@ -103,7 +103,7 @@ HTTP/1.1 202 Accepted
 accepted
 ```
 
-Expected haptic event: `opencodeComplete`.
+Expected haptic event: `complete` at the server boundary, mapped to the Logitech `opencodeComplete` action.
 
 ### Error handling checks
 

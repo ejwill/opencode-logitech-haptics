@@ -11,6 +11,28 @@ export const NOTIFICATION_EVENTS = Object.freeze({
   subagentCompletion: "subagent_complete",
 })
 
+export const SUPPORTED_WAVEFORMS = Object.freeze([
+  "sharp_state_change", "damp_state_change", "sharp_collision", "damp_collision",
+  "subtle_collision", "happy_alert", "angry_alert", "completed", "square", "wave",
+  "firework", "mad", "knock", "jingle", "ringing",
+])
+
+export const DEFAULT_WAVEFORMS = Object.freeze({
+  complete: "completed",
+  permission: "knock",
+  error: "angry_alert",
+  question: "ringing",
+  plan_exit: "happy_alert",
+})
+
+export const SUPPORTED_INTENSITIES = Object.freeze(["subtle", "normal", "strong"])
+
+export const INTENSITY_PROFILES = Object.freeze({
+  subtle: Object.freeze({ complete: "damp_state_change", permission: "subtle_collision", error: "damp_state_change", question: "wave", plan_exit: "happy_alert" }),
+  normal: Object.freeze(DEFAULT_WAVEFORMS),
+  strong: Object.freeze({ complete: "firework", permission: "ringing", error: "mad", question: "jingle", plan_exit: "firework" }),
+})
+
 export const DEFAULT_CONFIG = Object.freeze({
   enabled: true,
   endpoint: DEFAULT_ENDPOINT,
@@ -34,6 +56,8 @@ export const DEFAULT_CONFIG = Object.freeze({
     userMessage: false,
     subagentCompletion: false,
   }),
+  waveforms: Object.freeze(DEFAULT_WAVEFORMS),
+  intensity: "normal",
   minDurationSeconds: 0,
   suppressDuplicatesMs: 750,
   timeoutMs: 2_000,
@@ -64,13 +88,20 @@ export function normalizeConfig(override = {}, defaults = DEFAULT_CONFIG) {
     return { config: defaults, diagnostics: ["Configuration must be a JSON object; using defaults."] }
   }
 
-  const config = { ...defaults, events: { ...defaults.events }, notifications: { ...defaults.notifications } }
+  const config = { ...defaults, events: { ...defaults.events }, notifications: { ...defaults.notifications }, waveforms: { ...defaults.waveforms } }
   if (typeof override.enabled === "boolean") config.enabled = override.enabled
   else if (override.enabled !== undefined) diagnostics.push("enabled must be a boolean; using default.")
 
   if (override.endpoint !== undefined) {
     if (typeof override.endpoint === "string" && isLoopbackEndpoint(override.endpoint)) config.endpoint = override.endpoint
     else diagnostics.push("endpoint must be an http loopback URL; using default.")
+  }
+
+  if (override.intensity !== undefined) {
+    if (typeof override.intensity === "string" && SUPPORTED_INTENSITIES.includes(override.intensity)) {
+      config.intensity = override.intensity
+      config.waveforms = { ...config.waveforms, ...INTENSITY_PROFILES[override.intensity] }
+    } else diagnostics.push("intensity must be one of subtle, normal, or strong; using default.")
   }
 
   if (override.notifications !== undefined) {
@@ -95,12 +126,21 @@ export function normalizeConfig(override = {}, defaults = DEFAULT_CONFIG) {
     }
   }
 
+  if (override.waveforms !== undefined) {
+    if (!isRecord(override.waveforms)) diagnostics.push("waveforms must be an object; using defaults.")
+    else for (const [event, waveform] of Object.entries(override.waveforms)) {
+      if (!(event in config.waveforms)) diagnostics.push(`waveforms.${event} is unsupported and was ignored.`)
+      else if (typeof waveform !== "string" || !SUPPORTED_WAVEFORMS.includes(waveform)) diagnostics.push(`waveforms.${event} must be a supported waveform; using default.`)
+      else config.waveforms[event] = waveform
+    }
+  }
+
   for (const key of ["minDurationSeconds", "suppressDuplicatesMs", "timeoutMs"]) {
     if (override[key] === undefined) continue
     if (finiteNonNegative(override[key])) config[key] = override[key]
     else diagnostics.push(`${key} must be a non-negative number; using default.`)
   }
-  return { config: Object.freeze({ ...config, events: Object.freeze(config.events), notifications: Object.freeze(config.notifications) }), diagnostics }
+  return { config: Object.freeze({ ...config, events: Object.freeze(config.events), notifications: Object.freeze(config.notifications), waveforms: Object.freeze(config.waveforms) }), diagnostics }
 }
 
 export function stripJsonComments(source) {
@@ -147,7 +187,8 @@ export function createNotifier({ config, fetchImpl = globalThis.fetch, now = () 
       return { sent: false, reason: "duplicate" }
     }
     if (typeof fetchImpl !== "function") return { sent: false, reason: "transport-unavailable" }
-    const payload = { source: "opencode", event, message, directory, worktree, time: new Date(current).toISOString(), ...extra }
+    const waveform = activeConfig.waveforms[event]
+    const payload = { source: "opencode", event, ...(waveform ? { waveform } : {}), message, directory, worktree, time: new Date(current).toISOString(), ...extra }
     try {
       const response = await fetchImpl(activeConfig.endpoint, {
         method: "POST",
@@ -162,5 +203,24 @@ export function createNotifier({ config, fetchImpl = globalThis.fetch, now = () 
       return { sent: false, reason: error?.name === "TimeoutError" ? "timeout" : "transport-error" }
     }
   }
-  return { config: activeConfig, diagnostics: normalized.diagnostics, notify }
+
+  async function announceServer(serverUrl, { directory, worktree } = {}) {
+    if (typeof serverUrl !== "string" || serverUrl.length === 0 || typeof fetchImpl !== "function") {
+      return { sent: false, reason: "server-url-unavailable" }
+    }
+    const payload = { source: "opencode", type: "server_info", serverUrl, directory, worktree, time: new Date(now()).toISOString() }
+    try {
+      const response = await fetchImpl(activeConfig.endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(activeConfig.timeoutMs),
+      })
+      return response?.ok ? { sent: true, payload } : { sent: false, reason: "http-error", status: response?.status }
+    } catch (error) {
+      return { sent: false, reason: error?.name === "TimeoutError" ? "timeout" : "transport-error" }
+    }
+  }
+
+  return { config: activeConfig, diagnostics: normalized.diagnostics, notify, announceServer }
 }

@@ -59,6 +59,9 @@ namespace Loupedeck
     public sealed class ActionEditor
     {
         public void AddControlEx(ActionEditorControl control) { }
+        public event EventHandler<ActionEditorListboxItemsRequestedEventArgs> ListboxItemsRequested;
+        public event EventHandler<ActionEditorControlsStateRequestedEventArgs> ControlsStateRequested;
+        public event EventHandler<ActionEditorControlValueChangedEventArgs> ControlValueChanged;
     }
 
     public abstract class ActionEditorControl
@@ -72,11 +75,47 @@ namespace Loupedeck
         public ActionEditorCheckbox(String name, String labelText) : base(name, labelText) { }
     }
 
+    public sealed class ActionEditorListbox : ActionEditorControl
+    {
+        public ActionEditorListbox(String name, String labelText, String description) : base(name, labelText) { }
+    }
+
+    public sealed class ActionEditorListboxItemsRequestedEventArgs : EventArgs
+    {
+        public String ControlName { get; set; }
+        public void AddItem(String name, String displayName, String description) { }
+        public void SetSelectedItemName(String name) { }
+    }
+
+    public sealed class ActionEditorControlsStateRequestedEventArgs : EventArgs
+    {
+        public ActionEditorState ActionEditorState { get; } = new();
+    }
+
+    public sealed class ActionEditorControlValueChangedEventArgs : EventArgs
+    {
+        public String ControlName { get; set; }
+        public ActionEditorState ActionEditorState { get; } = new();
+    }
+
+    public sealed class ActionEditorState
+    {
+        private readonly Dictionary<String, String> _values = new();
+        public String GetControlValue(String name) => this._values.TryGetValue(name, out var value) ? value : null;
+        public void SetValue(String name, String value) => this._values[name] = value;
+        public void SetDisplayName(String value) { }
+    }
+
     public sealed class ActionEditorActionParameters
     {
         public Boolean TryGetBoolean(String name, out Boolean value)
         {
             value = true;
+            return false;
+        }
+        public Boolean TryGetString(String name, out String value)
+        {
+            value = null;
             return false;
         }
     }

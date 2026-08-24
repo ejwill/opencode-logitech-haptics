@@ -43,24 +43,30 @@ export function loadConfig(options) {
 
 export function createLogitechHapticsPlugin(config = loadConfig(), dependencies = {}) {
   const notifier = createNotifier({ config, fetchImpl: dependencies.fetchImpl, now: dependencies.now })
-  return async ({ directory, worktree }) => {
+  return async ({ directory, worktree, serverUrl }) => {
+    if (serverUrl) await notifier.announceServer(String(serverUrl), { directory, worktree })
     const trigger = (event, message, extra = {}) => notifier.notify(event, { message, directory, worktree, ...extra })
     return {
       event: async ({ event }) => {
+        const sessionID = event?.properties?.sessionID ?? event?.properties?.sessionId ?? event?.sessionID ?? event?.sessionId
+        const sessionContext = typeof sessionID === "string" ? { sessionID } : {}
         if (event?.type === "session.idle") {
           const duration = sessionDurationSeconds(event)
           if (duration !== undefined && duration < notifier.config.minDurationSeconds) return
-          await trigger("complete", "OpenCode session completed", { durationSeconds: duration })
+          await trigger("complete", "OpenCode session completed", { ...sessionContext, durationSeconds: duration })
         }
-        if (event?.type === "session.error") await trigger("error", "OpenCode session error")
-        if (event?.type === "permission.asked") await trigger("permission", "OpenCode permission requested")
+        if (event?.type === "session.error") await trigger("error", "OpenCode session error", sessionContext)
+        if (event?.type === "permission.asked") await trigger("permission", "OpenCode permission requested", sessionContext)
       },
       "permission.ask": async (input = {}) => {
-        await trigger("permission", `OpenCode permission requested: ${input.type ?? "unknown"}`, { permissionType: input.type })
+        const sessionID = input.sessionID ?? input.sessionId
+        await trigger("permission", `OpenCode permission requested: ${input.type ?? "unknown"}`, { ...(typeof sessionID === "string" ? { sessionID } : {}), permissionType: input.type })
       },
       "tool.execute.before": async (input = {}) => {
-        if (input.tool === "question") await trigger("question", "OpenCode has a question")
-        if (input.tool === "plan_exit") await trigger("plan_exit", "OpenCode plan is ready for review")
+        const sessionID = input.sessionID ?? input.sessionId
+        const sessionContext = typeof sessionID === "string" ? { sessionID } : {}
+        if (input.tool === "question") await trigger("question", "OpenCode has a question", sessionContext)
+        if (input.tool === "plan_exit") await trigger("plan_exit", "OpenCode plan is ready for review", sessionContext)
       },
     }
   }

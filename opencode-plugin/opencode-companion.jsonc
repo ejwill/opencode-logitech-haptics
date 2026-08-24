@@ -1,6 +1,7 @@
 {
   "enabled": true,
   "endpoint": "http://127.0.0.1:17844/haptic",
+  "intensity": "normal",
   "notifications": {
     "turnStarted": false,
     "completion": true,
@@ -10,6 +11,13 @@
     "planReady": true,
     "userMessage": false,
     "subagentCompletion": false
+  },
+  "waveforms": {
+    "complete": "completed",
+    "permission": "knock",
+    "error": "angry_alert",
+    "question": "ringing",
+    "plan_exit": "happy_alert"
   },
   "minDurationSeconds": 0,
   "suppressDuplicatesMs": 750

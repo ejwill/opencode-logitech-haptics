@@ -34,7 +34,7 @@ describe("OpenCode v2 adapter", () => {
   })
 
   it("maps only explicitly configured event-stream types", () => {
-    assert.deepEqual(notificationFromV2Event({ type: "session.idle" }, { "session.idle": "complete" }), { event: "complete", message: "OpenCode v2 event: session.idle" })
+    assert.deepEqual(notificationFromV2Event({ type: "session.idle", properties: { sessionID: "ses_123" } }, { "session.idle": "complete" }), { event: "complete", message: "OpenCode v2 event: session.idle", sessionID: "ses_123" })
     assert.deepEqual(
       notificationFromV2Event(
         { type: "form.created", properties: { form: { metadata: { kind: "question" } } } },

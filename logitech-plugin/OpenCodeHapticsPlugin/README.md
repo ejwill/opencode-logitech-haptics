@@ -38,6 +38,7 @@ CI also runs a smoke test directly against `OpenCodeCompanionServer`:
 
 ```bash
 PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll" \
+PLUGIN_API_PATH="$PWD/tests/PluginApiStubs/bin/Release/net10.0/PluginApi.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 ```
 
@@ -49,14 +50,17 @@ missing=400:missing event
 invalid=400:invalid json
 unknown=204:
 get=404:not found
-raised=opencodeComplete
+server-info=202:server info accepted
+raised=complete,complete:wave,test,...
 ```
 
 ## Configure notification haptics
 
-In Logi Options+, add any of the notification toggle actions from **OpenCode Companion → Haptic Preferences** to a device button. Pressing a toggle enables or disables that notification’s vibration. The choices are stored by Logi Plugin Service and apply to future OpenCode bridge events.
+For the complete user-facing setup guide, including the recommended OpenCode Companion folder and action icons, see [`../../docs/USER_GUIDE.md`](../../docs/USER_GUIDE.md).
 
-Use **Test Haptic Feedback** from **OpenCode Companion → Diagnostics** to verify the device path. Waveform selection remains an advanced package setting in `events/extra/eventMapping.yaml`; the SDK does not document a general Options+ waveform editor.
+In Logi Options+, add **Haptic Preferences** from **OpenCode Companion → Haptic Preferences** to a device button. Its editor shows the saved enabled/disabled state and waveform for each notification. Save the action, then press the assigned button once to persist the choices in Logi Plugin Service. Those local choices override waveform values requested by OpenCode. The separate notification toggle actions remain available as quick shortcuts.
+
+Use **Test Haptic Feedback** from **OpenCode Companion → Diagnostics** to verify the device path. On current Logi Plugin Service versions, **Haptic Preferences** also provides waveform selectors. The package mapping in `events/extra/eventMapping.yaml` remains the fallback for devices or hosts that do not expose the Action Editor.
 
 ## Package
 
@@ -65,9 +69,9 @@ dotnet tool restore --tool-manifest dotnet-tools.json
 node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
   artifacts/logitech \
-  OpenCodeCompanion_0_1
-node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1.lplug4
-node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_marketplace.lplug4
+  OpenCodeCompanion_0_1_0
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0_marketplace.lplug4
 ```
 
 On machines with only newer .NET runtimes installed, prefix the `logiplugintool` commands with `DOTNET_ROLL_FORWARD=Major`.

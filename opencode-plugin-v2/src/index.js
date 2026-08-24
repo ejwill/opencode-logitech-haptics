@@ -17,7 +17,8 @@ export function notificationFromV2Event(event, eventTypes = {}) {
   const propertyKey = type === "form.created" && typeof formKind === "string" ? `${type}:${formKind}` : undefined
   const notification = eventTypes?.[propertyKey] ?? eventTypes?.[type]
   if (typeof notification !== "string" || !SUPPORTED_EVENTS.includes(notification)) return undefined
-  return { event: notification, message: `OpenCode v2 event: ${type}` }
+  const sessionID = payload.sessionID ?? payload.sessionId
+  return { event: notification, message: `OpenCode v2 event: ${type}`, ...(typeof sessionID === "string" ? { sessionID } : {}) }
 }
 
 export function observedV2EventType(event, logEventType) {

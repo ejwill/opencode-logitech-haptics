@@ -19,7 +19,7 @@ function makeFetch({ status = 202, fail = false } = {}) {
 async function makePlugin(config = {}, options = {}) {
   const fetch = options.fetch ?? makeFetch()
   const plugin = createLogitechHapticsPlugin({ ...DEFAULT_CONFIG, suppressDuplicatesMs: 0, ...config }, { fetchImpl: fetch, now: options.now })
-  const hooks = await plugin({ directory: "/tmp/project", worktree: "/tmp/project" })
+  const hooks = await plugin({ directory: "/tmp/project", worktree: "/tmp/project", serverUrl: options.serverUrl })
   return { fetch, hooks }
 }
 
@@ -54,6 +54,12 @@ describe("loadConfig", () => {
 })
 
 describe("createLogitechHapticsPlugin", () => {
+  it("reports the OpenCode server URL when the host provides it", async () => {
+    const { fetch } = await makePlugin({}, { serverUrl: "http://127.0.0.1:49374" })
+    assert.equal(fetch.calls[0].payload.type, "server_info")
+    assert.equal(fetch.calls[0].payload.serverUrl, "http://127.0.0.1:49374")
+  })
+
   it("fires complete event on session.idle", async () => {
     const { fetch, hooks } = await makePlugin()
     await hooks.event({ event: { type: "session.idle", properties: { session: { time: { created: new Date(Date.now() - 10_000).toISOString() } } } } })

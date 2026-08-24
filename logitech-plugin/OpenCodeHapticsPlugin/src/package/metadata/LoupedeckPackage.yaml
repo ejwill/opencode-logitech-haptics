@@ -18,7 +18,7 @@ description: Feel OpenCode events through clear, configurable haptic feedback on
 pluginFileName: OpenCodeCompanionPlugin.dll
 
 # Plugin version.
-version: 1.0
+version: 0.1.0
 
 # Author of the plugin. The author can be a company or an individual developer.
 author: ejwill
@@ -65,7 +65,7 @@ minimumLoupedeckVersion: 6.0
 license: MIT
 
 # URL of the plugin license.
-licenseUrl: https://opensource.org/licenses/MIT
+licenseUrl: https://github.com/ejwill/opencode-logitech-haptics/blob/main/LICENSE
 
 # URL of the support page where the users can send improvement suggestions and report bugs.
 # The URL is shown in Loupedeck Marketplace. The page can be for example a GitHub issues page.
