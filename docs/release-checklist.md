@@ -6,6 +6,9 @@ Use this checklist to cut a GitHub Release after CI and hardware validation are 
 
 - [ ] Hardware validation completed or intentionally deferred.
 - [ ] `README.md` still accurately states hardware validation status.
+- [ ] Review and publish [`docs/DEVELOPER_EULA.md`](DEVELOPER_EULA.md) for the Logitech Marketplace submission.
+- [ ] Accept the Logitech Marketplace Developer Agreement in the publisher account.
+- [ ] Confirm the Marketplace listing includes the independent-companion disclaimer and reachable support/homepage links.
 - [ ] Version in `opencode-plugin/package.json` matches the intended tag.
 - [ ] Version in `opencode-plugin-v2/package.json` matches the intended tag.
 - [ ] `main` contains the commits you want to release.
@@ -15,12 +18,18 @@ Use this checklist to cut a GitHub Release after CI and hardware validation are 
 git status --short
 ```
 
+Before tagging, configure the GitHub Actions `npm-publish` environment:
+
+- [ ] Create the `npm-publish` environment.
+- [ ] Add an `NPM_TOKEN` secret with publish permission for `opencode-logi-companion` and `opencode-logi-companion-v2`, or configure npm Trusted Publishing for this repository/workflow and remove the token fallback.
+- [ ] Add an environment protection rule or required reviewer if publication should require approval.
+
 ## 2. Run local verification
 
 ```bash
 npm test
-npm --workspace @opencode-logitech-haptics/core test
-npm --workspace opencode-logitech-haptics-v2 test
+npm --workspace @opencode-logi-companion/core test
+npm --workspace opencode-logi-companion-v2 test
 ```
 
 ```bash
@@ -31,6 +40,7 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   /p:SkipLogiDeploy=true \
   /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll" \
+PLUGIN_API_PATH="$PWD/tests/PluginApiStubs/bin/Release/net10.0/PluginApi.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
@@ -43,12 +53,13 @@ node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_
 Expected smoke output:
 
 ```text
+server-info=202:server info accepted
 complete=202:accepted
 missing=400:missing event
 invalid=400:invalid json
 unknown=204:
 get=404:not found
-raised=opencodeComplete,opencodeTest,...
+raised=complete,complete:wave,test,...
 ```
 
 ## 3. Push main
@@ -79,6 +90,7 @@ v0.1.0 -> OpenCodeCompanion_0_1_0.lplug4
 In GitHub Actions, confirm the tag run completed:
 
 - [ ] `OpenCode plugin packages` job passed.
+- [ ] `Publish OpenCode npm packages` job passed and both packages are visible on npm.
 - [ ] `Logitech plugin` job passed.
 - [ ] `GitHub release` job passed.
 
@@ -87,8 +99,8 @@ In GitHub Actions, confirm the tag run completed:
 The release for `v0.1.0` should contain:
 
 - [ ] generated release notes
-- [ ] OpenCode npm package: `opencode-logitech-haptics-0.1.0.tgz`
-- [ ] OpenCode v2 npm package: `opencode-logitech-haptics-v2-0.1.0.tgz`
+- [ ] OpenCode npm package: `opencode-logi-companion-0.1.0.tgz`
+- [ ] OpenCode v2 npm package: `opencode-logi-companion-v2-0.1.0.tgz`
 - [ ] Logitech direct-install package: `OpenCodeCompanion_0_1_0.lplug4`
 - [ ] Logitech marketplace ZIP: `OpenCodeCompanion_0_1_0_marketplace.lplug4`
 

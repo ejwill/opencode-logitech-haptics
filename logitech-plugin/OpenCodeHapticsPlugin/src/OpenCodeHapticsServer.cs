@@ -12,16 +12,21 @@ namespace Loupedeck.OpenCodeCompanionPlugin
     {
         private const Int32 MaxRequestBodyBytes = 16 * 1024;
         private readonly HttpListener _listener = new();
-        private readonly Action<String> _raiseHapticEvent;
+        private readonly Action<String, String, String> _raiseHapticEvent;
+        private readonly Action<String> _reportServerUrl;
         private readonly Object _lifecycleLock = new();
         private CancellationTokenSource _cancellation;
         private Task _serveTask;
         private Boolean _disposed;
 
-        public OpenCodeCompanionServer(Int32 port, Action<String> raiseHapticEvent)
+        public OpenCodeCompanionServer(Int32 port, Action<String, String, String> raiseHapticEvent)
+            : this(port, raiseHapticEvent, null) { }
+
+        public OpenCodeCompanionServer(Int32 port, Action<String, String, String> raiseHapticEvent, Action<String> reportServerUrl)
         {
             this.Port = port;
             this._raiseHapticEvent = raiseHapticEvent ?? throw new ArgumentNullException(nameof(raiseHapticEvent));
+            this._reportServerUrl = reportServerUrl;
             this._listener.Prefixes.Add($"http://127.0.0.1:{port}/");
         }
 
@@ -114,7 +119,27 @@ namespace Loupedeck.OpenCodeCompanionPlugin
 
                 var body = await ReadBodyAsync(context.Request.InputStream).ConfigureAwait(false);
                 using var document = JsonDocument.Parse(body);
-                if (document.RootElement.ValueKind != JsonValueKind.Object || !document.RootElement.TryGetProperty("event", out var eventProperty))
+                if (document.RootElement.ValueKind != JsonValueKind.Object)
+                {
+                    await this.RespondAsync(context, 400, "missing event").ConfigureAwait(false);
+                    return;
+                }
+                if (document.RootElement.TryGetProperty("type", out var typeProperty)
+                    && typeProperty.ValueKind == JsonValueKind.String
+                    && String.Equals(typeProperty.GetString(), "server_info", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!document.RootElement.TryGetProperty("serverUrl", out var serverUrlProperty)
+                        || serverUrlProperty.ValueKind != JsonValueKind.String
+                        || !TryGetLoopbackUrl(serverUrlProperty.GetString(), out var serverUrl))
+                    {
+                        await this.RespondAsync(context, 400, "invalid server url").ConfigureAwait(false);
+                        return;
+                    }
+                    this._reportServerUrl?.Invoke(serverUrl);
+                    await this.RespondAsync(context, 202, "server info accepted").ConfigureAwait(false);
+                    return;
+                }
+                if (!document.RootElement.TryGetProperty("event", out var eventProperty))
                 {
                     await this.RespondAsync(context, 400, "missing event").ConfigureAwait(false);
                     return;
@@ -125,12 +150,20 @@ namespace Loupedeck.OpenCodeCompanionPlugin
                     return;
                 }
                 var openCodeEvent = eventProperty.GetString();
-                if (!OpenCodeHapticEvents.FromOpenCodeEvent.TryGetValue(openCodeEvent, out var hapticEvent))
+                var waveform = document.RootElement.TryGetProperty("waveform", out var waveformProperty)
+                    && waveformProperty.ValueKind == JsonValueKind.String
+                    ? waveformProperty.GetString()
+                    : null;
+                var sessionID = document.RootElement.TryGetProperty("sessionID", out var sessionProperty)
+                    && sessionProperty.ValueKind == JsonValueKind.String
+                    ? sessionProperty.GetString()
+                    : null;
+                if (!OpenCodeHapticEvents.FromOpenCodeEvent.ContainsKey(openCodeEvent))
                 {
                     await this.RespondAsync(context, 204, String.Empty).ConfigureAwait(false);
                     return;
                 }
-                this._raiseHapticEvent(hapticEvent);
+                this._raiseHapticEvent(openCodeEvent, waveform, sessionID);
                 await this.RespondAsync(context, 202, "accepted").ConfigureAwait(false);
             }
             catch (JsonException) { await this.TryRespondAsync(context, 400, "invalid json").ConfigureAwait(false); }
@@ -140,6 +173,18 @@ namespace Loupedeck.OpenCodeCompanionPlugin
                 PluginLog.Error($"OpenCode haptics request failed: {ex}");
                 await this.TryRespondAsync(context, 500, "internal error").ConfigureAwait(false);
             }
+        }
+
+        private static Boolean TryGetLoopbackUrl(String value, out String serverUrl)
+        {
+            serverUrl = null;
+            if (!Uri.TryCreate(value, UriKind.Absolute, out var uri)
+                || !String.Equals(uri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+                || !(String.Equals(uri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                    || String.Equals(uri.Host, "localhost", StringComparison.OrdinalIgnoreCase)
+                    || String.Equals(uri.Host, "::1", StringComparison.OrdinalIgnoreCase))) return false;
+            serverUrl = uri.ToString().TrimEnd('/');
+            return true;
         }
 
         private static async Task<String> ReadBodyAsync(Stream input)

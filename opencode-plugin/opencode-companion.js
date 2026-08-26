@@ -1,5 +1,5 @@
-// opencode-logitech-haptics.js — backward-compatible entry point
-// Re-exports the scaffolded createLogitechHapticsPlugin with default config.
+// OpenCode Companion entry point.
+// Re-exports the legacy adapter with its default configuration.
 export { createLogitechHapticsPlugin, loadConfig, DEFAULT_CONFIG } from "./src/index.js"
 export { LogitechHapticsPlugin } from "./src/index.js"
 export default LogitechHapticsPlugin

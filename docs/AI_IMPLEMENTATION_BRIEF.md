@@ -1,4 +1,4 @@
-# AI Implementation Brief: OpenCode Logitech Haptics
+# AI Implementation Brief: OpenCode Companion
 
 ## Goal
 
@@ -11,7 +11,7 @@ The project must not depend on third-party OpenCode notification plugins. It sho
 Use one monorepo:
 
 ```text
-opencode-logitech-haptics
+opencode-logi-companion
 ```
 
 ## Architecture
@@ -73,7 +73,7 @@ Content-Type: application/json
 
 ### Config
 
-OpenCode config controls when to notify:
+OpenCode config controls when to notify and may request the waveform:
 
 ```jsonc
 {
@@ -159,7 +159,7 @@ haptics:
     MX Master 4: sharp_state_change
 ```
 
-Known waveform names include `sharp_state_change`, `damp_state_change`, `sharp_collision`, `damp_collision`, `subtle_collision`, `happy_alert`, `angry_alert`, `completed`, `square`, `wave`, `firework`, `mad`, `knock`, `jingle`, and `ringing`.
+Known waveform names include `sharp_state_change`, `damp_state_change`, `sharp_collision`, `damp_collision`, `subtle_collision`, `happy_alert`, `angry_alert`, `completed`, `square`, `wave`, `firework`, `mad`, `knock`, `jingle`, and `ringing`. The OpenCode config and Logi Action Editor can request these values; `eventMapping.yaml` provides the packaged fallback mappings.
 
 ## Local HTTP server requirements
 
@@ -187,9 +187,9 @@ Package Logitech plugin as separate direct-install and marketplace `.lplug4` art
 
 ```bash
 dotnet build -c Release
-node scripts/package-logitech.mjs ./bin/Release/ ./artifacts/logitech OpenCodeCompanion_0_1
-node scripts/verify-logitech-package.mjs ./artifacts/logitech/OpenCodeCompanion_0_1.lplug4
-node scripts/verify-logitech-package.mjs ./artifacts/logitech/OpenCodeCompanion_0_1_marketplace.lplug4
+node scripts/package-logitech.mjs ./bin/Release/ ./artifacts/logitech OpenCodeCompanion_0_1_0
+node scripts/verify-logitech-package.mjs ./artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
+node scripts/verify-logitech-package.mjs ./artifacts/logitech/OpenCodeCompanion_0_1_0_marketplace.lplug4
 ```
 
 ## Acceptance criteria

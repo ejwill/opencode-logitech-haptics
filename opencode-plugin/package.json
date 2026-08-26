@@ -1,14 +1,14 @@
 {
-  "name": "opencode-logitech-haptics",
+  "name": "opencode-logi-companion",
   "version": "0.1.0",
   "type": "module",
-  "description": "OpenCode plugin that forwards notification events to a local Logitech haptics bridge",
+  "description": "OpenCode Logi Companion plugin for OpenCode v1 that forwards notification events to a local Logitech haptics bridge",
   "main": "src/index.js",
   "exports": {".": "./src/index.js"},
-  "dependencies": {"@opencode-logitech-haptics/core": "file:../packages/haptics-core"},
-  "bundledDependencies": ["@opencode-logitech-haptics/core"],
+  "dependencies": {"@opencode-logi-companion/core": "file:../packages/haptics-core"},
+  "bundledDependencies": ["@opencode-logi-companion/core"],
   "files": ["src", "examples", "README.md", "config.example.json"],
-  "keywords": ["opencode", "plugin", "logitech", "haptics", "mx-master-4", "mx-4"],
+  "keywords": ["opencode", "plugin", "logi", "logitech", "haptics", "mx-master-4", "mx-4"],
   "scripts": {"pretest": "node scripts/bundle-core.mjs", "test": "node --test", "prepack": "node scripts/bundle-core.mjs"},
   "engines": {"node": ">=20"}
 }

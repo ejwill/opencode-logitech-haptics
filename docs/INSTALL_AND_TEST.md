@@ -6,8 +6,8 @@ This guide covers the complete local path: build the two OpenCode packages and t
 
 | Artifact | Purpose | Installed by |
 | --- | --- | --- |
-| `opencode-logitech-haptics-<version>.tgz` | Legacy OpenCode adapter | Your legacy OpenCode plugin environment |
-| `opencode-logitech-haptics-v2-<version>.tgz` | OpenCode v2 beta adapter | OpenCode v2 package/configuration |
+| `opencode-logi-companion-<version>.tgz` | Legacy OpenCode Companion adapter | Your legacy OpenCode plugin environment |
+| `opencode-logi-companion-v2-<version>.tgz` | OpenCode Companion v2 beta adapter | OpenCode v2 package/configuration |
 | `OpenCodeCompanion_<version>.lplug4` | Local Logitech HTTP bridge, haptic mappings, and OpenCode companion actions | Logi Options+ / Logi Plugin Service |
 
 Both adapters POST only to the local loopback bridge at `http://127.0.0.1:17844/haptic` by default. They do not send haptic events to remote endpoints.
@@ -51,8 +51,8 @@ Create a clean artifact directory and pack both npm packages:
 
 ```bash
 mkdir -p artifacts/npm artifacts/logitech
-npm pack --workspace opencode-logitech-haptics --pack-destination artifacts/npm
-npm pack --workspace opencode-logitech-haptics-v2 --pack-destination artifacts/npm
+npm pack --workspace opencode-logi-companion --pack-destination artifacts/npm
+npm pack --workspace opencode-logi-companion-v2 --pack-destination artifacts/npm
 ```
 
 Package and verify both Logitech plugin artifacts:
@@ -149,7 +149,7 @@ The HTTP result proves the bridge accepted the request. Confirm the physical hap
 Install the legacy package into the Node environment used by your OpenCode plugin setup:
 
 ```bash
-npm install ./artifacts/npm/opencode-logitech-haptics-0.1.0.tgz
+npm install ./artifacts/npm/opencode-logi-companion-0.1.0.tgz
 ```
 
 For local repository development, configure OpenCode to load the legacy entrypoint according to its plugin configuration conventions:
@@ -161,10 +161,10 @@ opencode-plugin/src/index.js
 Use the supplied live-test configuration:
 
 ```bash
-OPENCODE_LOGITECH_HAPTICS_CONFIG="$PWD/opencode-plugin/examples/live-test-config.json" opencode
+OPENCODE_LOGI_COMPANION_CONFIG="$PWD/opencode-plugin/examples/live-test-config.json" opencode
 ```
 
-Configuration can also be discovered from `opencode-logitech-haptics.jsonc` or `opencode-logitech-haptics.json` in the current directory. `LOGITECH_HAPTICS_URL` can select another loopback host such as `http://localhost:17844/haptic`; non-loopback endpoints are rejected.
+Configuration can also be discovered from `opencode-logi-companion.jsonc` or `opencode-logi-companion.json` in the current directory. `OPENCODE_LOGI_COMPANION_URL` can select another loopback host such as `http://localhost:17844/haptic`; non-loopback endpoints are rejected.
 
 Trigger a session completion, permission prompt, error, question, or plan exit. See the legacy event table in [opencode-plugin/README.md](../opencode-plugin/README.md).
 
@@ -191,7 +191,7 @@ The v2 adapter is independent of the legacy package. Install it from a registry 
 For a registry package, use the package name instead:
 
 ```jsonc
-"package": "opencode-logitech-haptics-v2@0.1.0"
+"package": "opencode-logi-companion-v2@0.1.0"
 ```
 
 The v2 plugin is pinned to the documented beta API version in its `package.json`. Its event stream is intentionally opt-in through `eventTypes`; do not copy legacy event names unless you captured them from your matching v2 runtime. The documented `question` and `plan_exit` tool-hook names are forwarded when emitted.
@@ -210,13 +210,13 @@ Use [hardware-validation.md](hardware-validation.md) to record the OS, Logi Opti
 2. Remove the legacy package from its Node/OpenCode environment:
 
    ```bash
-   npm uninstall opencode-logitech-haptics
+   npm uninstall opencode-logi-companion
    ```
 
 3. Remove the v2 plugin entry from `opencode.json(c)`, or after registry installation run:
 
    ```bash
-   opencode2 plugin remove opencode-logitech-haptics-v2
+   opencode2 plugin remove opencode-logi-companion-v2
    ```
 
 4. Restart OpenCode and Logi Plugin Service.

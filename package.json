@@ -1,10 +1,10 @@
 {
-  "name": "opencode-logitech-haptics-monorepo",
+  "name": "opencode-companion-monorepo",
   "private": true,
   "version": "0.1.0",
   "description": "OpenCode plugin and Logitech Actions SDK plugin for triggering MX Master 4 haptics from OpenCode notifications",
   "workspaces": ["opencode-plugin", "opencode-plugin-v2", "packages/haptics-core"],
   "scripts": {
-    "test": "npm --workspace opencode-logitech-haptics test && npm --workspace @opencode-logitech-haptics/core test && npm --workspace opencode-logitech-haptics-v2 test"
+    "test": "npm --workspace opencode-logi-companion test && npm --workspace @opencode-logi-companion/core test && npm --workspace opencode-logi-companion-v2 test"
   }
 }

@@ -8,7 +8,7 @@ This guide is for installing the packaged OpenCode + Logitech haptics bridge.
 
 Use either local artifacts or GitHub Release assets:
 
-- OpenCode plugin npm package: `opencode-logitech-haptics-0.1.0.tgz`
+- OpenCode plugin npm package: `opencode-logi-companion-0.1.0.tgz`
 - Logitech direct-install package: `OpenCodeCompanion_0_1_0.lplug4` (tar)
 - Logitech marketplace package: `OpenCodeCompanion_0_1_0_marketplace.lplug4` (ZIP)
 
@@ -16,7 +16,7 @@ Local artifacts can be created with:
 
 ```bash
 mkdir -p artifacts/npm artifacts/logitech
-npm pack --workspace opencode-logitech-haptics --pack-destination artifacts/npm
+npm pack --workspace opencode-logi-companion --pack-destination artifacts/npm
 node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
   artifacts/logitech \
@@ -94,7 +94,7 @@ Expected Logitech event: `opencodeTest`.
 Install the local package tarball with npm:
 
 ```bash
-npm install ./artifacts/npm/opencode-logitech-haptics-0.1.0.tgz
+npm install ./artifacts/npm/opencode-logi-companion-0.1.0.tgz
 ```
 
 If your OpenCode setup loads plugins from local files instead of installed npm packages, point it at the repository/plugin entrypoint according to your OpenCode config conventions:
@@ -108,7 +108,7 @@ opencode-plugin/src/index.js
 Use the committed live-test config:
 
 ```bash
-OPENCODE_LOGITECH_HAPTICS_CONFIG="$PWD/opencode-plugin/examples/live-test-config.json" opencode
+OPENCODE_LOGI_COMPANION_CONFIG="$PWD/opencode-plugin/examples/live-test-config.json" opencode
 ```
 
 Default endpoint:
@@ -120,37 +120,46 @@ http://127.0.0.1:17844/haptic
 Override the loopback endpoint if needed:
 
 ```bash
-LOGITECH_HAPTICS_URL="http://localhost:17844/haptic" opencode
+OPENCODE_LOGI_COMPANION_URL="http://localhost:17844/haptic" opencode
 ```
 
 ## 4. Configure the OpenCode v2 package
 
-OpenCode v2 is a separate beta runtime and uses the independently packaged `opencode-logitech-haptics-v2` adapter. Install the package from a registry when it is published, or reference the local package directory while developing:
+OpenCode v2 is a separate beta runtime and uses the independently packaged `opencode-logi-companion-v2` adapter. Install the package from a registry when it is published, or reference the local package directory while developing:
+
+Copy `opencode-plugin-v2/config.example.jsonc` to one of these locations:
+
+```text
+OPENCODE_LOGI_COMPANION_CONFIG=/absolute/path/opencode-logi-companion.jsonc
+./opencode-logi-companion.jsonc
+~/.config/opencode/opencode-logi-companion.jsonc
+```
+
+The adapter checks those locations in that order (the environment variable wins), and inline plugin options override file values. The example contains the live mappings verified against the current OpenCode v2 beta:
 
 ```jsonc
-// opencode.jsonc
 {
-  "plugins": [{
-    "package": "./opencode-plugin-v2",
-    "options": {
-      "endpoint": "http://127.0.0.1:17844/haptic",
-      // Add only event names captured from your pinned OpenCode v2 runtime.
-      "eventTypes": {
-        "your.observed.event": "complete"
-      }
-    }
-  }]
+  "notifications": {
+    "turnStarted": false,
+    "completion": true,
+    "question": true,
+    "permission": false,
+    "error": true,
+    "planReady": true
+  }
 }
 ```
 
-The adapter also forwards the documented `execute.before` tool hooks when their public tool names are `question` or `plan_exit`. It keeps completion, errors, and permissions opt-in through `eventTypes` because OpenCode v2 event names are beta and not part of the legacy contract.
+The file controls haptic enablement, notification filtering, bridge timing, and duplicate suppression. The adapter owns the current v2 event mapping. Keep `logEventTypes` false after discovery; use `advanced.eventTypes` only when adapting to a different runtime event contract.
+
+The adapter also forwards the documented `execute.before` tool hooks when their public tool names are `question` or `plan_exit`. Permission is disabled in the v2 example until a live permission payload is confirmed; a runtime-specific mapping can be added under `advanced.eventTypes` once captured.
 
 ## 5. Validate end-to-end
 
 1. Start / reload Logi Plugin Service.
 2. Confirm `curl -i http://127.0.0.1:17844/haptic` returns `405 method not allowed`.
 3. Confirm direct POST returns `202 accepted` and fires a haptic.
-4. Start OpenCode with `OPENCODE_LOGITECH_HAPTICS_CONFIG` set.
+4. Start OpenCode with `OPENCODE_LOGI_COMPANION_CONFIG` set.
 5. Trigger an OpenCode session completion.
 6. Confirm the MX Master 4 / MX 4 haptic fires.
 
@@ -162,9 +171,9 @@ For the full hardware checklist and troubleshooting, see [`hardware-validation.m
 - Remove the npm package from the OpenCode environment:
 
 ```bash
-npm uninstall opencode-logitech-haptics
+npm uninstall opencode-logi-companion
 ```
 
-- Remove the v2 package from its OpenCode v2 configuration or use `opencode2 plugin remove opencode-logitech-haptics-v2` after registry installation.
+- Remove the v2 package from its OpenCode v2 configuration or use `opencode2 plugin remove opencode-logi-companion-v2` after registry installation.
 
 - Restart OpenCode and Logi Plugin Service.

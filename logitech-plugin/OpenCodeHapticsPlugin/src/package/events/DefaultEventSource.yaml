@@ -1,22 +1,247 @@
 displayName: OpenCode Companion
-description: Haptic events emitted from OpenCode notifications
+description: Haptic feedback for OpenCode Companion notifications
 
 events:
     - name: opencodeComplete
-      displayName: OpenCode Complete
-      description: OpenCode session completed
+      displayName: Turn Complete
+      description: OpenCode finished a turn
     - name: opencodePermission
-      displayName: OpenCode Permission
-      description: OpenCode is asking for permission
+      displayName: Permission Request
+      description: OpenCode needs your approval
     - name: opencodeError
-      displayName: OpenCode Error
-      description: OpenCode reported an error
+      displayName: Turn Error
+      description: OpenCode encountered an error
     - name: opencodeQuestion
-      displayName: OpenCode Question
-      description: OpenCode has a question
+      displayName: Question Awaiting Answer
+      description: OpenCode is waiting for your answer
     - name: opencodePlanExit
-      displayName: OpenCode Plan Ready
-      description: OpenCode plan is ready for review
+      displayName: Plan Ready
+      description: OpenCode has a plan ready for review
     - name: opencodeTest
-      displayName: OpenCode Test
-      description: Manual test event
+      displayName: Test Haptic Feedback
+      description: Confirm that your Logitech device can vibrate
+    - name: opencodeComplete_sharp_state_change
+      displayName: Turn Complete (sharp_state_change)
+      description: OpenCode finished a turn using the sharp_state_change waveform
+    - name: opencodeComplete_damp_state_change
+      displayName: Turn Complete (damp_state_change)
+      description: OpenCode finished a turn using the damp_state_change waveform
+    - name: opencodeComplete_sharp_collision
+      displayName: Turn Complete (sharp_collision)
+      description: OpenCode finished a turn using the sharp_collision waveform
+    - name: opencodeComplete_damp_collision
+      displayName: Turn Complete (damp_collision)
+      description: OpenCode finished a turn using the damp_collision waveform
+    - name: opencodeComplete_subtle_collision
+      displayName: Turn Complete (subtle_collision)
+      description: OpenCode finished a turn using the subtle_collision waveform
+    - name: opencodeComplete_happy_alert
+      displayName: Turn Complete (happy_alert)
+      description: OpenCode finished a turn using the happy_alert waveform
+    - name: opencodeComplete_angry_alert
+      displayName: Turn Complete (angry_alert)
+      description: OpenCode finished a turn using the angry_alert waveform
+    - name: opencodeComplete_completed
+      displayName: Turn Complete (completed)
+      description: OpenCode finished a turn using the completed waveform
+    - name: opencodeComplete_square
+      displayName: Turn Complete (square)
+      description: OpenCode finished a turn using the square waveform
+    - name: opencodeComplete_wave
+      displayName: Turn Complete (wave)
+      description: OpenCode finished a turn using the wave waveform
+    - name: opencodeComplete_firework
+      displayName: Turn Complete (firework)
+      description: OpenCode finished a turn using the firework waveform
+    - name: opencodeComplete_mad
+      displayName: Turn Complete (mad)
+      description: OpenCode finished a turn using the mad waveform
+    - name: opencodeComplete_knock
+      displayName: Turn Complete (knock)
+      description: OpenCode finished a turn using the knock waveform
+    - name: opencodeComplete_jingle
+      displayName: Turn Complete (jingle)
+      description: OpenCode finished a turn using the jingle waveform
+    - name: opencodeComplete_ringing
+      displayName: Turn Complete (ringing)
+      description: OpenCode finished a turn using the ringing waveform
+    - name: opencodePermission_sharp_state_change
+      displayName: Permission Request (sharp_state_change)
+      description: OpenCode needs your approval using the sharp_state_change waveform
+    - name: opencodePermission_damp_state_change
+      displayName: Permission Request (damp_state_change)
+      description: OpenCode needs your approval using the damp_state_change waveform
+    - name: opencodePermission_sharp_collision
+      displayName: Permission Request (sharp_collision)
+      description: OpenCode needs your approval using the sharp_collision waveform
+    - name: opencodePermission_damp_collision
+      displayName: Permission Request (damp_collision)
+      description: OpenCode needs your approval using the damp_collision waveform
+    - name: opencodePermission_subtle_collision
+      displayName: Permission Request (subtle_collision)
+      description: OpenCode needs your approval using the subtle_collision waveform
+    - name: opencodePermission_happy_alert
+      displayName: Permission Request (happy_alert)
+      description: OpenCode needs your approval using the happy_alert waveform
+    - name: opencodePermission_angry_alert
+      displayName: Permission Request (angry_alert)
+      description: OpenCode needs your approval using the angry_alert waveform
+    - name: opencodePermission_completed
+      displayName: Permission Request (completed)
+      description: OpenCode needs your approval using the completed waveform
+    - name: opencodePermission_square
+      displayName: Permission Request (square)
+      description: OpenCode needs your approval using the square waveform
+    - name: opencodePermission_wave
+      displayName: Permission Request (wave)
+      description: OpenCode needs your approval using the wave waveform
+    - name: opencodePermission_firework
+      displayName: Permission Request (firework)
+      description: OpenCode needs your approval using the firework waveform
+    - name: opencodePermission_mad
+      displayName: Permission Request (mad)
+      description: OpenCode needs your approval using the mad waveform
+    - name: opencodePermission_knock
+      displayName: Permission Request (knock)
+      description: OpenCode needs your approval using the knock waveform
+    - name: opencodePermission_jingle
+      displayName: Permission Request (jingle)
+      description: OpenCode needs your approval using the jingle waveform
+    - name: opencodePermission_ringing
+      displayName: Permission Request (ringing)
+      description: OpenCode needs your approval using the ringing waveform
+    - name: opencodeError_sharp_state_change
+      displayName: Turn Error (sharp_state_change)
+      description: OpenCode encountered an error using the sharp_state_change waveform
+    - name: opencodeError_damp_state_change
+      displayName: Turn Error (damp_state_change)
+      description: OpenCode encountered an error using the damp_state_change waveform
+    - name: opencodeError_sharp_collision
+      displayName: Turn Error (sharp_collision)
+      description: OpenCode encountered an error using the sharp_collision waveform
+    - name: opencodeError_damp_collision
+      displayName: Turn Error (damp_collision)
+      description: OpenCode encountered an error using the damp_collision waveform
+    - name: opencodeError_subtle_collision
+      displayName: Turn Error (subtle_collision)
+      description: OpenCode encountered an error using the subtle_collision waveform
+    - name: opencodeError_happy_alert
+      displayName: Turn Error (happy_alert)
+      description: OpenCode encountered an error using the happy_alert waveform
+    - name: opencodeError_angry_alert
+      displayName: Turn Error (angry_alert)
+      description: OpenCode encountered an error using the angry_alert waveform
+    - name: opencodeError_completed
+      displayName: Turn Error (completed)
+      description: OpenCode encountered an error using the completed waveform
+    - name: opencodeError_square
+      displayName: Turn Error (square)
+      description: OpenCode encountered an error using the square waveform
+    - name: opencodeError_wave
+      displayName: Turn Error (wave)
+      description: OpenCode encountered an error using the wave waveform
+    - name: opencodeError_firework
+      displayName: Turn Error (firework)
+      description: OpenCode encountered an error using the firework waveform
+    - name: opencodeError_mad
+      displayName: Turn Error (mad)
+      description: OpenCode encountered an error using the mad waveform
+    - name: opencodeError_knock
+      displayName: Turn Error (knock)
+      description: OpenCode encountered an error using the knock waveform
+    - name: opencodeError_jingle
+      displayName: Turn Error (jingle)
+      description: OpenCode encountered an error using the jingle waveform
+    - name: opencodeError_ringing
+      displayName: Turn Error (ringing)
+      description: OpenCode encountered an error using the ringing waveform
+    - name: opencodeQuestion_sharp_state_change
+      displayName: Question Awaiting Answer (sharp_state_change)
+      description: OpenCode is waiting for your answer using the sharp_state_change waveform
+    - name: opencodeQuestion_damp_state_change
+      displayName: Question Awaiting Answer (damp_state_change)
+      description: OpenCode is waiting for your answer using the damp_state_change waveform
+    - name: opencodeQuestion_sharp_collision
+      displayName: Question Awaiting Answer (sharp_collision)
+      description: OpenCode is waiting for your answer using the sharp_collision waveform
+    - name: opencodeQuestion_damp_collision
+      displayName: Question Awaiting Answer (damp_collision)
+      description: OpenCode is waiting for your answer using the damp_collision waveform
+    - name: opencodeQuestion_subtle_collision
+      displayName: Question Awaiting Answer (subtle_collision)
+      description: OpenCode is waiting for your answer using the subtle_collision waveform
+    - name: opencodeQuestion_happy_alert
+      displayName: Question Awaiting Answer (happy_alert)
+      description: OpenCode is waiting for your answer using the happy_alert waveform
+    - name: opencodeQuestion_angry_alert
+      displayName: Question Awaiting Answer (angry_alert)
+      description: OpenCode is waiting for your answer using the angry_alert waveform
+    - name: opencodeQuestion_completed
+      displayName: Question Awaiting Answer (completed)
+      description: OpenCode is waiting for your answer using the completed waveform
+    - name: opencodeQuestion_square
+      displayName: Question Awaiting Answer (square)
+      description: OpenCode is waiting for your answer using the square waveform
+    - name: opencodeQuestion_wave
+      displayName: Question Awaiting Answer (wave)
+      description: OpenCode is waiting for your answer using the wave waveform
+    - name: opencodeQuestion_firework
+      displayName: Question Awaiting Answer (firework)
+      description: OpenCode is waiting for your answer using the firework waveform
+    - name: opencodeQuestion_mad
+      displayName: Question Awaiting Answer (mad)
+      description: OpenCode is waiting for your answer using the mad waveform
+    - name: opencodeQuestion_knock
+      displayName: Question Awaiting Answer (knock)
+      description: OpenCode is waiting for your answer using the knock waveform
+    - name: opencodeQuestion_jingle
+      displayName: Question Awaiting Answer (jingle)
+      description: OpenCode is waiting for your answer using the jingle waveform
+    - name: opencodeQuestion_ringing
+      displayName: Question Awaiting Answer (ringing)
+      description: OpenCode is waiting for your answer using the ringing waveform
+    - name: opencodePlanExit_sharp_state_change
+      displayName: Plan Ready (sharp_state_change)
+      description: OpenCode has a plan ready for review using the sharp_state_change waveform
+    - name: opencodePlanExit_damp_state_change
+      displayName: Plan Ready (damp_state_change)
+      description: OpenCode has a plan ready for review using the damp_state_change waveform
+    - name: opencodePlanExit_sharp_collision
+      displayName: Plan Ready (sharp_collision)
+      description: OpenCode has a plan ready for review using the sharp_collision waveform
+    - name: opencodePlanExit_damp_collision
+      displayName: Plan Ready (damp_collision)
+      description: OpenCode has a plan ready for review using the damp_collision waveform
+    - name: opencodePlanExit_subtle_collision
+      displayName: Plan Ready (subtle_collision)
+      description: OpenCode has a plan ready for review using the subtle_collision waveform
+    - name: opencodePlanExit_happy_alert
+      displayName: Plan Ready (happy_alert)
+      description: OpenCode has a plan ready for review using the happy_alert waveform
+    - name: opencodePlanExit_angry_alert
+      displayName: Plan Ready (angry_alert)
+      description: OpenCode has a plan ready for review using the angry_alert waveform
+    - name: opencodePlanExit_completed
+      displayName: Plan Ready (completed)
+      description: OpenCode has a plan ready for review using the completed waveform
+    - name: opencodePlanExit_square
+      displayName: Plan Ready (square)
+      description: OpenCode has a plan ready for review using the square waveform
+    - name: opencodePlanExit_wave
+      displayName: Plan Ready (wave)
+      description: OpenCode has a plan ready for review using the wave waveform
+    - name: opencodePlanExit_firework
+      displayName: Plan Ready (firework)
+      description: OpenCode has a plan ready for review using the firework waveform
+    - name: opencodePlanExit_mad
+      displayName: Plan Ready (mad)
+      description: OpenCode has a plan ready for review using the mad waveform
+    - name: opencodePlanExit_knock
+      displayName: Plan Ready (knock)
+      description: OpenCode has a plan ready for review using the knock waveform
+    - name: opencodePlanExit_jingle
+      displayName: Plan Ready (jingle)
+      description: OpenCode has a plan ready for review using the jingle waveform
+    - name: opencodePlanExit_ringing
+      displayName: Plan Ready (ringing)
+      description: OpenCode has a plan ready for review using the ringing waveform

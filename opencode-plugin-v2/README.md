@@ -1,19 +1,44 @@
-# OpenCode Logitech Haptics v2
+# OpenCode Logi Companion v2
 
-This is a separate OpenCode v2 beta adapter. It exports `Plugin.define` with the ID `opencode.logitech-haptics`, validates localhost bridge options using the shared core, and cleans up its public event-stream task on reload/shutdown.
+This is the OpenCode v2 beta adapter for OpenCode Logi Companion, a Logitech integration for OpenCode. It exports `Plugin.define` with the ID `opencode.logi.companion`, validates localhost bridge options using the shared core, and cleans up its public event-stream task on reload/shutdown.
 
-Install it from an npm registry with the OpenCode v2 CLI, then configure options in `opencode.jsonc`:
+Install it from an npm registry with the OpenCode v2 CLI:
+
+```bash
+opencode2 plugin add opencode-logi-companion-v2
+```
+
+You can configure it in a shared JSONC file or with inline OpenCode plugin options.
+
+Copy [`config.example.jsonc`](config.example.jsonc) to `~/.config/opencode/opencode-logi-companion.jsonc` for a global setup, or to the project root for project-specific behavior:
+
+```bash
+cp opencode-plugin-v2/config.example.jsonc ~/.config/opencode/opencode-logi-companion.jsonc
+```
+
+The adapter searches for configuration in this order: `OPENCODE_LOGI_COMPANION_CONFIG`, the current project directory, then `~/.config/opencode/`. If inline plugin options are present, they override values from the file. The file is not an OpenCode plugin registration file; the plugin still needs to be installed and loaded separately. A leftover `opencode-companion.jsonc` from earlier releases is reported as a diagnostic; rename it to `opencode-logi-companion.jsonc` — its values are not loaded.
+
+Inline options remain supported:
 
 ```jsonc
 {
   "plugins": [{
-    "package": "opencode-logitech-haptics-v2@0.1.0",
+    "package": "opencode-logi-companion-v2@0.1.0",
     "options": {
       "endpoint": "http://127.0.0.1:17844/haptic",
-      "eventTypes": { "session.idle": "complete" }
+      "notifications": {
+        "turnStarted": false,
+        "completion": true,
+        "question": true,
+        "error": true,
+        "planReady": true
+      },
+      "logEventTypes": false
     }
   }]
 }
 ```
 
-`eventTypes` deliberately requires explicit event-stream mappings. Use the discovery fixture before adding a mapping, because the v2 API is beta and this adapter never assumes that a legacy event name is a v2 event contract. The documented `execute.before` tool hook forwards `question` and `plan_exit` when those public tool names are emitted.
+`notifications` is the public configuration surface: it controls which user-facing haptic notifications are enabled. The adapter internally maps the current beta event stream to those notification roles. For runtime-specific overrides, use the advanced `advanced.eventTypes` object; this is intended for diagnostics and future OpenCode runtime variants, not normal configuration. The documented `execute.before` tool hook forwards `question` and `plan_exit` when those public tool names are emitted.
+
+Set `logEventTypes` to `true` temporarily to print only observed event type names while testing a pinned runtime. The adapter does not log event payloads. If a runtime-specific override is needed, add only confirmed mappings under `advanced.eventTypes`, then set `logEventTypes` back to `false`.

@@ -17,3 +17,228 @@ haptics:
     opencodeTest:
         DEFAULT: sharp_state_change
         MX Master 4: sharp_state_change
+    opencodeComplete_sharp_state_change:
+        DEFAULT: sharp_state_change
+        MX Master 4: sharp_state_change
+    opencodeComplete_damp_state_change:
+        DEFAULT: damp_state_change
+        MX Master 4: damp_state_change
+    opencodeComplete_sharp_collision:
+        DEFAULT: sharp_collision
+        MX Master 4: sharp_collision
+    opencodeComplete_damp_collision:
+        DEFAULT: damp_collision
+        MX Master 4: damp_collision
+    opencodeComplete_subtle_collision:
+        DEFAULT: subtle_collision
+        MX Master 4: subtle_collision
+    opencodeComplete_happy_alert:
+        DEFAULT: happy_alert
+        MX Master 4: happy_alert
+    opencodeComplete_angry_alert:
+        DEFAULT: angry_alert
+        MX Master 4: angry_alert
+    opencodeComplete_completed:
+        DEFAULT: completed
+        MX Master 4: completed
+    opencodeComplete_square:
+        DEFAULT: square
+        MX Master 4: square
+    opencodeComplete_wave:
+        DEFAULT: wave
+        MX Master 4: wave
+    opencodeComplete_firework:
+        DEFAULT: firework
+        MX Master 4: firework
+    opencodeComplete_mad:
+        DEFAULT: mad
+        MX Master 4: mad
+    opencodeComplete_knock:
+        DEFAULT: knock
+        MX Master 4: knock
+    opencodeComplete_jingle:
+        DEFAULT: jingle
+        MX Master 4: jingle
+    opencodeComplete_ringing:
+        DEFAULT: ringing
+        MX Master 4: ringing
+    opencodePermission_sharp_state_change:
+        DEFAULT: sharp_state_change
+        MX Master 4: sharp_state_change
+    opencodePermission_damp_state_change:
+        DEFAULT: damp_state_change
+        MX Master 4: damp_state_change
+    opencodePermission_sharp_collision:
+        DEFAULT: sharp_collision
+        MX Master 4: sharp_collision
+    opencodePermission_damp_collision:
+        DEFAULT: damp_collision
+        MX Master 4: damp_collision
+    opencodePermission_subtle_collision:
+        DEFAULT: subtle_collision
+        MX Master 4: subtle_collision
+    opencodePermission_happy_alert:
+        DEFAULT: happy_alert
+        MX Master 4: happy_alert
+    opencodePermission_angry_alert:
+        DEFAULT: angry_alert
+        MX Master 4: angry_alert
+    opencodePermission_completed:
+        DEFAULT: completed
+        MX Master 4: completed
+    opencodePermission_square:
+        DEFAULT: square
+        MX Master 4: square
+    opencodePermission_wave:
+        DEFAULT: wave
+        MX Master 4: wave
+    opencodePermission_firework:
+        DEFAULT: firework
+        MX Master 4: firework
+    opencodePermission_mad:
+        DEFAULT: mad
+        MX Master 4: mad
+    opencodePermission_knock:
+        DEFAULT: knock
+        MX Master 4: knock
+    opencodePermission_jingle:
+        DEFAULT: jingle
+        MX Master 4: jingle
+    opencodePermission_ringing:
+        DEFAULT: ringing
+        MX Master 4: ringing
+    opencodeError_sharp_state_change:
+        DEFAULT: sharp_state_change
+        MX Master 4: sharp_state_change
+    opencodeError_damp_state_change:
+        DEFAULT: damp_state_change
+        MX Master 4: damp_state_change
+    opencodeError_sharp_collision:
+        DEFAULT: sharp_collision
+        MX Master 4: sharp_collision
+    opencodeError_damp_collision:
+        DEFAULT: damp_collision
+        MX Master 4: damp_collision
+    opencodeError_subtle_collision:
+        DEFAULT: subtle_collision
+        MX Master 4: subtle_collision
+    opencodeError_happy_alert:
+        DEFAULT: happy_alert
+        MX Master 4: happy_alert
+    opencodeError_angry_alert:
+        DEFAULT: angry_alert
+        MX Master 4: angry_alert
+    opencodeError_completed:
+        DEFAULT: completed
+        MX Master 4: completed
+    opencodeError_square:
+        DEFAULT: square
+        MX Master 4: square
+    opencodeError_wave:
+        DEFAULT: wave
+        MX Master 4: wave
+    opencodeError_firework:
+        DEFAULT: firework
+        MX Master 4: firework
+    opencodeError_mad:
+        DEFAULT: mad
+        MX Master 4: mad
+    opencodeError_knock:
+        DEFAULT: knock
+        MX Master 4: knock
+    opencodeError_jingle:
+        DEFAULT: jingle
+        MX Master 4: jingle
+    opencodeError_ringing:
+        DEFAULT: ringing
+        MX Master 4: ringing
+    opencodeQuestion_sharp_state_change:
+        DEFAULT: sharp_state_change
+        MX Master 4: sharp_state_change
+    opencodeQuestion_damp_state_change:
+        DEFAULT: damp_state_change
+        MX Master 4: damp_state_change
+    opencodeQuestion_sharp_collision:
+        DEFAULT: sharp_collision
+        MX Master 4: sharp_collision
+    opencodeQuestion_damp_collision:
+        DEFAULT: damp_collision
+        MX Master 4: damp_collision
+    opencodeQuestion_subtle_collision:
+        DEFAULT: subtle_collision
+        MX Master 4: subtle_collision
+    opencodeQuestion_happy_alert:
+        DEFAULT: happy_alert
+        MX Master 4: happy_alert
+    opencodeQuestion_angry_alert:
+        DEFAULT: angry_alert
+        MX Master 4: angry_alert
+    opencodeQuestion_completed:
+        DEFAULT: completed
+        MX Master 4: completed
+    opencodeQuestion_square:
+        DEFAULT: square
+        MX Master 4: square
+    opencodeQuestion_wave:
+        DEFAULT: wave
+        MX Master 4: wave
+    opencodeQuestion_firework:
+        DEFAULT: firework
+        MX Master 4: firework
+    opencodeQuestion_mad:
+        DEFAULT: mad
+        MX Master 4: mad
+    opencodeQuestion_knock:
+        DEFAULT: knock
+        MX Master 4: knock
+    opencodeQuestion_jingle:
+        DEFAULT: jingle
+        MX Master 4: jingle
+    opencodeQuestion_ringing:
+        DEFAULT: ringing
+        MX Master 4: ringing
+    opencodePlanExit_sharp_state_change:
+        DEFAULT: sharp_state_change
+        MX Master 4: sharp_state_change
+    opencodePlanExit_damp_state_change:
+        DEFAULT: damp_state_change
+        MX Master 4: damp_state_change
+    opencodePlanExit_sharp_collision:
+        DEFAULT: sharp_collision
+        MX Master 4: sharp_collision
+    opencodePlanExit_damp_collision:
+        DEFAULT: damp_collision
+        MX Master 4: damp_collision
+    opencodePlanExit_subtle_collision:
+        DEFAULT: subtle_collision
+        MX Master 4: subtle_collision
+    opencodePlanExit_happy_alert:
+        DEFAULT: happy_alert
+        MX Master 4: happy_alert
+    opencodePlanExit_angry_alert:
+        DEFAULT: angry_alert
+        MX Master 4: angry_alert
+    opencodePlanExit_completed:
+        DEFAULT: completed
+        MX Master 4: completed
+    opencodePlanExit_square:
+        DEFAULT: square
+        MX Master 4: square
+    opencodePlanExit_wave:
+        DEFAULT: wave
+        MX Master 4: wave
+    opencodePlanExit_firework:
+        DEFAULT: firework
+        MX Master 4: firework
+    opencodePlanExit_mad:
+        DEFAULT: mad
+        MX Master 4: mad
+    opencodePlanExit_knock:
+        DEFAULT: knock
+        MX Master 4: knock
+    opencodePlanExit_jingle:
+        DEFAULT: jingle
+        MX Master 4: jingle
+    opencodePlanExit_ringing:
+        DEFAULT: ringing
+        MX Master 4: ringing

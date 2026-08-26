@@ -1,8 +1,10 @@
-# OpenCode Companion
+# OpenCode Logi Companion
 
-OpenCode Companion is an independent Logitech integration for OpenCode. It connects OpenCode notification events to MX Master 4 / MX 4 haptic feedback and provides a foundation for optional Actions Ring controls.
+OpenCode Logi Companion is an independent Logitech integration for OpenCode. It connects OpenCode notification events to MX Master 4 / MX 4 haptic feedback and provides a foundation for optional Actions Ring controls. Inside Logi Options+ it appears as **OpenCode Companion**.
 
-OpenCode Companion is not affiliated with or endorsed by the OpenCode project.
+OpenCode Logi Companion is not affiliated with or endorsed by the OpenCode or Logitech projects.
+
+The plugin icon is based on the OpenCode square brand asset. OpenCode and its logo are trademarks of their respective owner; this project uses the mark to identify compatibility and is independently maintained.
 
 This repository is a monorepo with two pieces:
 
@@ -48,6 +50,12 @@ docs/                               # implementation brief and design notes
 | `plan_exit` | `opencodePlanExit` | `happy_alert` |
 | `test` | `opencodeTest` | `sharp_state_change` |
 
+## User setup
+
+See [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) for the recommended Logi Options+ folder layout, event actions, icons, waveform and intensity configuration, precedence rules, and bridge testing steps.
+
+The initial OpenCode control set is documented there as well: switch agent, switch thinking level, stop the current turn, open the session selector, and open the model selector. These controls are kept separate from the haptic notification adapter; launch/focus remains a planned platform-specific action.
+
 ## Local verification
 
 Run the OpenCode plugin tests:
@@ -68,14 +76,25 @@ dotnet build logitech-plugin/OpenCodeHapticsPlugin/OpenCodeHapticsPlugin.sln \
   /p:SkipLogiDeploy=true \
   /p:PluginApiDir="$PWD/tests/PluginApiStubs/bin/Release/net10.0/"
 PLUGIN_DLL_PATH="$PWD/logitech-plugin/OpenCodeHapticsPlugin/bin/Release/bin/OpenCodeCompanionPlugin.dll" \
+PLUGIN_API_PATH="$PWD/tests/PluginApiStubs/bin/Release/net10.0/PluginApi.dll" \
   dotnet run --project tests/ServerSmokeTest/ServerSmokeTest.csproj -c Release
 node scripts/package-logitech.mjs \
   logitech-plugin/OpenCodeHapticsPlugin/bin/Release/ \
   artifacts/logitech \
-  OpenCodeCompanion_0_1
-node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_marketplace.lplug4
-node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1.lplug4
+  OpenCodeCompanion_0_1_0
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0_marketplace.lplug4
+node scripts/verify-logitech-package.mjs artifacts/logitech/OpenCodeCompanion_0_1_0.lplug4
 ```
+
+### Configure haptics in Logi Options+
+
+The Logitech plugin includes notification toggle actions under **OpenCode Companion → Haptic Preferences**. Assign the toggles you want to device buttons and press one to enable or disable that notification’s vibration. The choices persist in Logi Plugin Service and are applied to bridge events immediately.
+
+The **Test Haptic Feedback** action remains under **OpenCode Companion → Diagnostics**. Use it to confirm the device and haptic path before tuning notification preferences.
+
+Waveforms can be requested in the OpenCode `waveforms` configuration object. Set `intensity` to `subtle`, `normal`, or `strong` for a curated profile, then use `waveforms` for exact per-event choices. The Logitech package keeps `events/extra/eventMapping.yaml` as the device-safe fallback and exposes the same choices through the **Haptic Preferences** Action Editor when supported by the installed Logi Plugin Service.
+
+Configuration precedence is: a saved Logitech per-event waveform override, a saved Logitech intensity profile, an OpenCode per-event `waveforms` override, an OpenCode `intensity` profile, then the packaged Logitech default. This keeps the OpenCode JSONC file easy to edit or have an assistant update while still allowing device-local preferences in Logi Options+. A separate companion web app is not required for the current configuration model.
 
 `DOTNET_ROLL_FORWARD=Major` is only needed on machines with a newer runtime but no .NET 10 runtime. GitHub Actions installs .NET 10 and does not need it.
 
@@ -92,7 +111,7 @@ This creates a `.link` file in the Logi Plugin Service `Plugins` directory and a
 To install a verified package without relying on the `.lplug4` file association, use the Logi Plugin Tool directly:
 
 ```bash
-DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install /absolute/path/OpenCodeCompanion_0_1.lplug4
+DOTNET_ROLL_FORWARD=Major dotnet tool run logiplugintool install /absolute/path/OpenCodeCompanion_0_1_0.lplug4
 ```
 
 The SDK installs the package into the Logi Plugin Service `Plugins` directory. A double-click install requires a host application such as Logi Options+ or Loupedeck and a registered Logi Plugin Service package installer.
@@ -101,7 +120,7 @@ The SDK installs the package into the Logi Plugin Service `Plugins` directory. A
 
 For source-to-device install and test steps, see [`docs/INSTALL_AND_TEST.md`](docs/INSTALL_AND_TEST.md).
 
-After installing/loading the Logitech plugin, send a test event:
+On an OpenCode v2 setup, the v2 adapter registers a `/haptic-test` command that sends a diagnostic event through the configured bridge endpoint. After installing/loading the Logitech plugin, you can also send a test event directly:
 
 ```bash
 curl -i -X POST http://127.0.0.1:17844/haptic \
@@ -117,7 +136,7 @@ For OpenCode live-event testing, use [`opencode-plugin/examples/live-test-config
 
 ## Releases
 
-CI creates release artifacts on every run and creates a GitHub Release for tags matching `v*`.
+CI creates release artifacts on every run and creates a GitHub Release for tags matching `v*`. Tagged releases also publish the two OpenCode npm packages through the protected `npm-publish` job after package verification succeeds.
 
 To cut a release:
 
@@ -147,7 +166,7 @@ The HTTP bridge accepted the event, but the Logitech haptic mapping or device se
 
 ### OpenCode does not trigger haptics, but curl works
 
-Check `OPENCODE_LOGITECH_HAPTICS_CONFIG`, verify OpenCode loaded the plugin, and temporarily set `suppressDuplicatesMs` to `0` in the live-test config.
+Check `OPENCODE_LOGI_COMPANION_CONFIG`, verify OpenCode loaded the plugin, and temporarily set `suppressDuplicatesMs` to `0` in the live-test config.
 
 ## Build phases
 
