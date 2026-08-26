@@ -1,8 +1,8 @@
-# OpenCode Companion
+# OpenCode Logi Companion
 
-OpenCode Companion is an independent Logitech integration for OpenCode. It connects OpenCode notification events to MX Master 4 / MX 4 haptic feedback and provides a foundation for optional Actions Ring controls.
+OpenCode Logi Companion is an independent Logitech integration for OpenCode. It connects OpenCode notification events to MX Master 4 / MX 4 haptic feedback and provides a foundation for optional Actions Ring controls. Inside Logi Options+ it appears as **OpenCode Companion**.
 
-OpenCode Companion is not affiliated with or endorsed by the OpenCode project.
+OpenCode Logi Companion is not affiliated with or endorsed by the OpenCode or Logitech projects.
 
 The plugin icon is based on the OpenCode square brand asset. OpenCode and its logo are trademarks of their respective owner; this project uses the mark to identify compatibility and is independently maintained.
 
@@ -120,7 +120,7 @@ The SDK installs the package into the Logi Plugin Service `Plugins` directory. A
 
 For source-to-device install and test steps, see [`docs/INSTALL_AND_TEST.md`](docs/INSTALL_AND_TEST.md).
 
-After installing/loading the Logitech plugin, send a test event:
+On an OpenCode v2 setup, the v2 adapter registers a `/haptic-test` command that sends a diagnostic event through the configured bridge endpoint. After installing/loading the Logitech plugin, you can also send a test event directly:
 
 ```bash
 curl -i -X POST http://127.0.0.1:17844/haptic \
@@ -166,7 +166,7 @@ The HTTP bridge accepted the event, but the Logitech haptic mapping or device se
 
 ### OpenCode does not trigger haptics, but curl works
 
-Check `OPENCODE_LOGITECH_HAPTICS_CONFIG`, verify OpenCode loaded the plugin, and temporarily set `suppressDuplicatesMs` to `0` in the live-test config.
+Check `OPENCODE_LOGI_COMPANION_CONFIG`, verify OpenCode loaded the plugin, and temporarily set `suppressDuplicatesMs` to `0` in the live-test config.
 
 ## Build phases
 

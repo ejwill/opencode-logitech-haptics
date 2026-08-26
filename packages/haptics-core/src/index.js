@@ -179,11 +179,11 @@ export function createNotifier({ config, fetchImpl = globalThis.fetch, now = () 
   const normalized = normalizeConfig(config)
   const activeConfig = normalized.config
 
-  async function notify(event, { message, directory, worktree, ...extra } = {}) {
-    if (!activeConfig.enabled || !activeConfig.events[event]) return { sent: false, reason: "disabled" }
+  async function notify(event, { message, directory, worktree, force = false, ...extra } = {}) {
+    if (!force && (!activeConfig.enabled || !activeConfig.events[event])) return { sent: false, reason: "disabled" }
     const current = now()
     const previous = lastSentAt.get(event)
-    if (previous !== undefined && activeConfig.suppressDuplicatesMs > 0 && current - previous < activeConfig.suppressDuplicatesMs) {
+    if (!force && previous !== undefined && activeConfig.suppressDuplicatesMs > 0 && current - previous < activeConfig.suppressDuplicatesMs) {
       return { sent: false, reason: "duplicate" }
     }
     if (typeof fetchImpl !== "function") return { sent: false, reason: "transport-unavailable" }

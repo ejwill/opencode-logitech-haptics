@@ -1,8 +1,8 @@
 import { Plugin } from "@opencode-ai/plugin"
-import { createNotifier, SUPPORTED_EVENTS } from "@opencode-logitech-haptics/core"
+import { createNotifier, SUPPORTED_EVENTS } from "@opencode-logi-companion/core"
 import { resolveV2Options } from "./config.js"
 
-export const PLUGIN_ID = "opencode.companion"
+export const PLUGIN_ID = "opencode.logi.companion"
 
 function eventPayload(event) {
   if (event?.properties && typeof event.properties === "object") return event.properties
@@ -52,6 +52,18 @@ export function createV2Plugin(pluginApi = Plugin, dependencies = {}) {
       await ctx.tool.hook("execute.before", async (event) => {
         if (event.tool === "question") await notifier.notify("question", { message: "OpenCode v2 has a question" })
         if (event.tool === "plan_exit") await notifier.notify("plan_exit", { message: "OpenCode v2 plan is ready for review" })
+      })
+
+      await ctx.command.transform((draft) => {
+        draft.add({
+          name: "haptic-test",
+          description: "Send a diagnostic test event to the Logitech haptics bridge",
+          execute: async () => {
+            const result = await notifier.notify("test", { message: "OpenCode Logi Companion haptic test", force: true })
+            const detail = result.sent ? "sent" : `not sent (${result.reason}${result.status ? ` ${result.status}` : ""})`
+            console.info(`[${PLUGIN_ID}] haptic-test ${detail}`)
+          },
+        })
       })
 
       return async () => {

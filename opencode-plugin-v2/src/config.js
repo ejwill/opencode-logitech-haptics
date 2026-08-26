@@ -1,9 +1,10 @@
 import { existsSync, readFileSync } from "node:fs"
 import { homedir } from "node:os"
 import { join } from "node:path"
-import { normalizeConfig, stripJsonComments, SUPPORTED_EVENTS } from "@opencode-logitech-haptics/core"
+import { normalizeConfig, stripJsonComments, SUPPORTED_EVENTS } from "@opencode-logi-companion/core"
 
-const CONFIG_FILENAME = "opencode-companion.jsonc"
+const CONFIG_FILENAME = "opencode-logi-companion.jsonc"
+const LEGACY_CONFIG_FILENAME = "opencode-companion.jsonc"
 
 export const DEFAULT_V2_EVENT_TYPES = Object.freeze({
   "session.execution.started": "session_started",
@@ -18,9 +19,13 @@ function isRecord(value) {
 }
 
 function candidatePaths({ env, cwd, home }) {
-  const explicit = env.OPENCODE_LOGITECH_HAPTICS_CONFIG
+  const explicit = env.OPENCODE_LOGI_COMPANION_CONFIG
   if (explicit) return [explicit]
   return [join(cwd, CONFIG_FILENAME), join(home, ".config", "opencode", CONFIG_FILENAME)]
+}
+
+function legacyCandidatePaths({ cwd, home }) {
+  return [join(cwd, LEGACY_CONFIG_FILENAME), join(home, ".config", "opencode", LEGACY_CONFIG_FILENAME)]
 }
 
 function readConfigFile(paths, exists, readFile) {
@@ -51,6 +56,10 @@ function normalizeEventTypes(eventTypes, diagnostics) {
 export function loadV2Config({ env = process.env, cwd = process.cwd(), home = homedir(), exists = existsSync, readFile = readFileSync } = {}) {
   const file = readConfigFile(candidatePaths({ env, cwd, home }), exists, readFile)
   const diagnostics = [...file.diagnostics]
+  if (!file.path && !env.OPENCODE_LOGI_COMPANION_CONFIG) {
+    const legacyPath = legacyCandidatePaths({ cwd, home }).find((candidate) => exists(candidate))
+    if (legacyPath) diagnostics.push(`Found legacy configuration at ${legacyPath}; rename it to ${CONFIG_FILENAME} in the same location (its values are ignored).`)
+  }
   const source = isRecord(file.value) ? file.value : {}
   if (!isRecord(file.value)) diagnostics.push("Configuration must be a JSON object; using defaults.")
   const normalized = normalizeConfig(source)

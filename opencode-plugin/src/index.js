@@ -1,8 +1,12 @@
 import { existsSync, readFileSync } from "node:fs"
+import { homedir } from "node:os"
 import { join } from "node:path"
-import { createNotifier, DEFAULT_CONFIG, normalizeConfig, stripJsonComments } from "@opencode-logitech-haptics/core"
+import { createNotifier, DEFAULT_CONFIG, normalizeConfig, stripJsonComments } from "@opencode-logi-companion/core"
 
 export { DEFAULT_CONFIG }
+
+const CONFIG_FILENAMES = ["opencode-logi-companion.jsonc", "opencode-logi-companion.json"]
+const LEGACY_CONFIG_FILENAMES = ["opencode-companion.jsonc", "opencode-companion.json"]
 
 function sessionDurationSeconds(event) {
   const session = event?.properties?.session ?? event?.session ?? {}
@@ -13,18 +17,35 @@ function sessionDurationSeconds(event) {
   return Math.max(0, (Date.now() - started) / 1000)
 }
 
-function defaultConfigPath(cwd, exists = existsSync) {
-  for (const filename of ["opencode-companion.jsonc", "opencode-companion.json"]) {
-    const candidate = join(cwd, filename)
-    if (exists(candidate)) return candidate
+function findConfigFile(filenames, directories, exists) {
+  for (const directory of directories) {
+    for (const filename of filenames) {
+      const candidate = join(directory, filename)
+      if (exists(candidate)) return candidate
+    }
   }
   return undefined
 }
 
-export function loadConfigResult({ env = process.env, cwd = process.cwd(), exists = existsSync, readFile = readFileSync } = {}) {
+function defaultConfigCandidates({ cwd, home }, exists = existsSync) {
+  const directories = [cwd, join(home, ".config", "opencode")]
+  const path = findConfigFile(CONFIG_FILENAMES, directories, exists)
+  if (path) return { path }
+  const legacyPath = findConfigFile(LEGACY_CONFIG_FILENAMES, directories, exists)
+  return legacyPath ? { legacyPath } : {}
+}
+
+export function loadConfigResult({ env = process.env, cwd = process.cwd(), home = homedir(), exists = existsSync, readFile = readFileSync } = {}) {
   const diagnostics = []
-  const path = env.OPENCODE_LOGITECH_HAPTICS_CONFIG || defaultConfigPath(cwd, exists)
+  let path = env.OPENCODE_LOGI_COMPANION_CONFIG
   let override = {}
+  if (!path) {
+    const candidate = defaultConfigCandidates({ cwd, home }, exists)
+    path = candidate.path
+    if (!path && candidate.legacyPath) {
+      diagnostics.push(`Found legacy configuration at ${candidate.legacyPath}; rename it to opencode-logi-companion.jsonc in the same location (its values are ignored).`)
+    }
+  }
   if (path) {
     try {
       override = JSON.parse(stripJsonComments(readFile(path, "utf8")))
@@ -32,7 +53,7 @@ export function loadConfigResult({ env = process.env, cwd = process.cwd(), exist
       diagnostics.push(`Could not read configuration at ${path}: ${error.message}`)
     }
   }
-  if (env.LOGITECH_HAPTICS_URL) override = { ...override, endpoint: env.LOGITECH_HAPTICS_URL }
+  if (env.OPENCODE_LOGI_COMPANION_URL) override = { ...override, endpoint: env.OPENCODE_LOGI_COMPANION_URL }
   const normalized = normalizeConfig(override)
   return { config: normalized.config, diagnostics: [...diagnostics, ...normalized.diagnostics], path }
 }

@@ -38,7 +38,7 @@ This Agreement ends automatically if you materially breach it. On termination, s
 
 ## 8. Contact
 
-Support and notices: [GitHub Issues](https://github.com/ejwill/opencode-logitech-haptics/issues)
+Support and notices: [GitHub Issues](https://github.com/ejwill/opencode-logi-companion/issues)
 
 ## 9. Governing terms
 

@@ -1,8 +1,8 @@
 {
-  "name": "@opencode-logitech-haptics/core",
+  "name": "@opencode-logi-companion/core",
   "version": "0.1.0",
   "type": "module",
-  "description": "Runtime-neutral configuration and localhost transport for OpenCode Logitech Haptics adapters",
+  "description": "Runtime-neutral configuration and localhost transport for OpenCode Logi Companion adapters",
   "exports": { ".": "./src/index.js" },
   "files": ["src", "README.md"],
   "scripts": { "test": "node --test" },

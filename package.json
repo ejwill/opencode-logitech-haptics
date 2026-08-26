@@ -5,6 +5,6 @@
   "description": "OpenCode plugin and Logitech Actions SDK plugin for triggering MX Master 4 haptics from OpenCode notifications",
   "workspaces": ["opencode-plugin", "opencode-plugin-v2", "packages/haptics-core"],
   "scripts": {
-    "test": "npm --workspace opencode-companion test && npm --workspace @opencode-logitech-haptics/core test && npm --workspace opencode-companion-v2 test"
+    "test": "npm --workspace opencode-logi-companion test && npm --workspace @opencode-logi-companion/core test && npm --workspace opencode-logi-companion-v2 test"
   }
 }

@@ -5,9 +5,9 @@ import { loadV2Config, resolveV2Options } from "../src/config.js"
 
 describe("OpenCode v2 adapter", () => {
   it("loads the shared JSONC config and keeps inline options as overrides", () => {
-    const files = new Map([["/config/opencode-companion.jsonc", '{ "endpoint": "http://localhost:17844/haptic", "advanced": { "eventTypes": { "session.execution.succeeded": "complete" } }, "logEventTypes": true }']])
+    const files = new Map([["/config/opencode-logi-companion.jsonc", '{ "endpoint": "http://localhost:17844/haptic", "advanced": { "eventTypes": { "session.execution.succeeded": "complete" } }, "logEventTypes": true }']])
     const loaded = loadV2Config({ cwd: "/config", home: "/home/user", exists: (path) => files.has(path), readFile: (path) => files.get(path) })
-    assert.equal(loaded.path, "/config/opencode-companion.jsonc")
+    assert.equal(loaded.path, "/config/opencode-logi-companion.jsonc")
     assert.equal(loaded.logEventTypes, true)
     assert.deepEqual(loaded.eventTypes, { "session.execution.succeeded": "complete" })
 
@@ -26,6 +26,18 @@ describe("OpenCode v2 adapter", () => {
       "form.created:question": "question",
     })
     assert.equal(resolved.logEventTypes, false)
+  })
+
+  it("warns without loading when only a legacy config file exists", () => {
+    const loaded = loadV2Config({
+      cwd: "/config",
+      home: "/home/user",
+      exists: (path) => path === "/config/opencode-companion.jsonc",
+      readFile: () => "{ \"endpoint\": \"http://localhost:9999/haptic\" }",
+    })
+    assert.equal(loaded.path, undefined)
+    assert.equal(loaded.config.endpoint, "http://127.0.0.1:17844/haptic")
+    assert.match(loaded.diagnostics.join("\n"), /rename it to opencode-logi-companion\.jsonc/)
   })
 
   it("exports the documented Plugin.define shape", () => {
@@ -73,10 +85,12 @@ describe("OpenCode v2 adapter", () => {
     let release
     const fakePlugin = { define: (definition) => definition }
     const hooks = []
+    const commands = []
     let subscriptionOptions
     const ctx = {
       options: { suppressDuplicatesMs: 0, advanced: { eventTypes: { "session.idle": "complete" } }, logEventTypes: true },
       tool: { hook: async (name, callback) => hooks.push({ name, callback }) },
+      command: { transform: async (callback) => callback({ add: (definition) => commands.push(definition) }) },
       event: { subscribe: async function* (options) { subscriptionOptions = options; yield { type: "session.idle" }; await new Promise((resolve) => { release = resolve }) } },
     }
     const observed = []
@@ -95,5 +109,30 @@ describe("OpenCode v2 adapter", () => {
     assert.ok(subscriptionOptions.signal.aborted)
     assert.deepEqual(observed, ["session.idle"])
     assert.deepEqual(sent.map((payload) => payload.event), ["complete", "question"])
+  })
+
+  it("registers a haptic-test command that bypasses notification toggles", async () => {
+    const sent = []
+    const commands = []
+    const fakePlugin = { define: (definition) => definition }
+    const ctx = {
+      options: { enabled: false },
+      tool: { hook: async () => {} },
+      command: { transform: async (callback) => callback({ add: (definition) => commands.push(definition) }) },
+      event: { subscribe: async function* () {} },
+    }
+    await createV2Plugin(fakePlugin, {
+      fetchImpl: async (_url, request) => {
+        sent.push(JSON.parse(request.body))
+        return { ok: true, status: 202 }
+      },
+    }).setup(ctx)
+    assert.equal(commands.length, 1)
+    assert.equal(commands[0].name, "haptic-test")
+    assert.equal(typeof commands[0].execute, "function")
+    await commands[0].execute()
+    assert.equal(sent.length, 1)
+    assert.equal(sent[0].event, "test")
+    assert.equal(sent[0].source, "opencode")
   })
 })

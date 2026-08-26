@@ -65,12 +65,12 @@ minimumLoupedeckVersion: 6.0
 license: MIT
 
 # URL of the plugin license.
-licenseUrl: https://github.com/ejwill/opencode-logitech-haptics/blob/main/LICENSE
+licenseUrl: https://github.com/ejwill/opencode-logi-companion/blob/main/LICENSE
 
 # URL of the support page where the users can send improvement suggestions and report bugs.
 # The URL is shown in Loupedeck Marketplace. The page can be for example a GitHub issues page.
 # NOTE: This setting is recommended when publishing the plugin in Loupedeck Marketplace.
-supportPageUrl: https://github.com/ejwill/opencode-logitech-haptics/issues
+supportPageUrl: https://github.com/ejwill/opencode-logi-companion/issues
 
 # URL of the plugin homepage. The URL is shown in Loupedeck Marketplace.
-homePageUrl: https://github.com/ejwill/opencode-logitech-haptics
+homePageUrl: https://github.com/ejwill/opencode-logi-companion

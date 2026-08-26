@@ -36,8 +36,8 @@ jobs:
       - name: Build npm package
         run: |
           mkdir -p artifacts/npm
-          npm pack --workspace opencode-logitech-haptics --pack-destination artifacts/npm
-          npm pack --workspace opencode-logitech-haptics-v2 --pack-destination artifacts/npm
+          npm pack --workspace opencode-logi-companion --pack-destination artifacts/npm
+          npm pack --workspace opencode-logi-companion-v2 --pack-destination artifacts/npm
 
       - name: Test installed npm packages
         run: node scripts/verify-packed-adapters.mjs artifacts/npm
@@ -160,8 +160,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish artifacts/npm/opencode-companion-[0-9]*.tgz --access public --provenance
-          npm publish artifacts/npm/opencode-companion-v2-*.tgz --access public --provenance
+          npm publish artifacts/npm/opencode-logi-companion-[0-9]*.tgz --access public --provenance
+          npm publish artifacts/npm/opencode-logi-companion-v2-*.tgz --access public --provenance
 
   release:
     name: GitHub release

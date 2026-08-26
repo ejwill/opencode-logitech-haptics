@@ -21,15 +21,15 @@ git status --short
 Before tagging, configure the GitHub Actions `npm-publish` environment:
 
 - [ ] Create the `npm-publish` environment.
-- [ ] Add an `NPM_TOKEN` secret with publish permission for `opencode-companion` and `opencode-companion-v2`, or configure npm Trusted Publishing for this repository/workflow and remove the token fallback.
+- [ ] Add an `NPM_TOKEN` secret with publish permission for `opencode-logi-companion` and `opencode-logi-companion-v2`, or configure npm Trusted Publishing for this repository/workflow and remove the token fallback.
 - [ ] Add an environment protection rule or required reviewer if publication should require approval.
 
 ## 2. Run local verification
 
 ```bash
 npm test
-npm --workspace @opencode-logitech-haptics/core test
-npm --workspace opencode-companion-v2 test
+npm --workspace @opencode-logi-companion/core test
+npm --workspace opencode-logi-companion-v2 test
 ```
 
 ```bash
@@ -99,8 +99,8 @@ In GitHub Actions, confirm the tag run completed:
 The release for `v0.1.0` should contain:
 
 - [ ] generated release notes
-- [ ] OpenCode npm package: `opencode-companion-0.1.0.tgz`
-- [ ] OpenCode v2 npm package: `opencode-companion-v2-0.1.0.tgz`
+- [ ] OpenCode npm package: `opencode-logi-companion-0.1.0.tgz`
+- [ ] OpenCode v2 npm package: `opencode-logi-companion-v2-0.1.0.tgz`
 - [ ] Logitech direct-install package: `OpenCodeCompanion_0_1_0.lplug4`
 - [ ] Logitech marketplace ZIP: `OpenCodeCompanion_0_1_0_marketplace.lplug4`
 

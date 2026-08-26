@@ -74,6 +74,20 @@ describe("createNotifier", () => {
     assert.equal(attempts, 2)
   })
 
+  it("force sends diagnostics while disabled and inside the suppression window", async () => {
+    const calls = []
+    const notifier = createNotifier({ config: { enabled: false, events: { test: false, error: false }, suppressDuplicatesMs: 60_000 }, now: () => 5, fetchImpl: async (_url, request) => {
+      calls.push(JSON.parse(request.body))
+      return { ok: true, status: 202 }
+    } })
+    const gated = await notifier.notify("test", { message: "gated" })
+    assert.equal(gated.sent, false)
+    const forced = await notifier.notify("test", { message: "diagnostic", force: true })
+    assert.equal(forced.sent, true)
+    assert.deepEqual(calls.map((payload) => payload.event), ["test"])
+    assert.equal(calls[0].force, undefined)
+  })
+
   it("announces the OpenCode server URL without creating a haptic event", async () => {
     const calls = []
     const notifier = createNotifier({ fetchImpl: async (url, request) => {

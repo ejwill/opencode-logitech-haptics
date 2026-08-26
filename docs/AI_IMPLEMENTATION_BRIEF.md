@@ -11,7 +11,7 @@ The project must not depend on third-party OpenCode notification plugins. It sho
 Use one monorepo:
 
 ```text
-opencode-companion
+opencode-logi-companion
 ```
 
 ## Architecture

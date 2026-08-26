@@ -132,6 +132,21 @@ The OpenCode adapter can be configured with JSON or JSONC:
 
 Valid intensity values are `subtle`, `normal`, and `strong`. An explicit `waveforms` entry overrides the selected OpenCode intensity profile.
 
+### Installing with the OpenCode v2 CLI
+
+On an OpenCode v2 (`opencode2`) setup, install the adapter without editing configuration by hand:
+
+```bash
+opencode2 plugin add opencode-logi-companion-v2
+opencode2 plugin list        # confirm it loaded
+```
+
+Watched config directories reload automatically, so edits to `opencode-logi-companion.jsonc` apply without restarting. Restart the service after changing an installed package version:
+
+```bash
+opencode2 service restart
+```
+
 ## Configuration precedence
 
 The effective waveform is resolved in this order:
@@ -146,7 +161,13 @@ This lets advanced OpenCode users edit JSONC while still allowing device-local p
 
 ## Test the bridge manually
 
-With the Logitech plugin loaded, send a test event:
+On OpenCode v2, run the built-in diagnostic command (it bypasses notification toggles and always fires):
+
+```text
+/haptic-test
+```
+
+The command logs `haptic-test sent` on success. Alternatively, with the Logitech plugin loaded, send a test event directly:
 
 ```bash
 curl -i -X POST http://127.0.0.1:17844/haptic \

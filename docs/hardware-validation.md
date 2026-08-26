@@ -128,7 +128,7 @@ Expected: `400 Bad Request` with body `invalid json`.
 Use the committed live-test config:
 
 ```bash
-OPENCODE_LOGITECH_HAPTICS_CONFIG="$PWD/opencode-plugin/examples/live-test-config.json" opencode
+OPENCODE_LOGI_COMPANION_CONFIG="$PWD/opencode-plugin/examples/live-test-config.json" opencode
 ```
 
 Trigger these OpenCode flows:
@@ -212,7 +212,7 @@ Check the mapping files listed above and verify the plugin package contains them
 
 Likely causes:
 
-- `OPENCODE_LOGITECH_HAPTICS_CONFIG` points to the wrong file.
+- `OPENCODE_LOGI_COMPANION_CONFIG` points to the wrong file.
 - OpenCode did not load the local plugin.
 - The specific event is disabled in config.
 - Duplicate suppression filtered repeat events.
